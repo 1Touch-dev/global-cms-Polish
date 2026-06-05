@@ -1,0 +1,9 @@
+⚠ Port 3000 is in use by process 59952, using available port 3001 instead.
+⨯ Another next dev server is already running.
+
+- Local:        http://localhost:3000
+- PID:          59952
+- Dir:          C:\Users\lenovo\Desktop\thunder\Global_Cms_Protugese
+- Log:          .next\dev\logs\next-development.log
+
+Run taskkill /PID 59952 /F to stop it.
