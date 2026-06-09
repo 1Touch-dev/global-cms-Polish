@@ -6,13 +6,13 @@ import { ArrowRight, CalendarDays, Trophy, Activity, Gauge, Sparkles } from 'luc
 import { FadeInSection, StaggerContainer, StaggerItem } from '@/components/ui/PageTransition'
 import { Spiel } from '@/types/spiel.types'
 import { LiveMatchCard } from '@/components/layout/LiveMatchCard'
-import { getNewsCollections } from '@/components/news/NewsSection'
-import { FeaturedArticleCard } from '@/components/news/FeaturedArticleCard'
-import { ArticleCard } from '@/components/news/ArticleCard'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import { LeagueCard } from '@/components/layout/LeagueCard'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { BcFeaturedCard } from '@/components/cms/BcFeaturedCard'
+import { BcArticleCard } from '@/components/cms/BcArticleCard'
+import type { BialoCzerwoniArticle } from '@/lib/bialoCzerwoniApi'
 
 interface HomePageProps {
   aktuelleSpiele: Spiel[]
@@ -38,17 +38,19 @@ interface HomePageProps {
       form: string[]
     }[]
   }[]
+  cmsArticles: BialoCzerwoniArticle[]
 }
 
-export default function HomePageClient({ aktuelleSpiele, scorers, gruppen }: HomePageProps) {
+export default function HomePageClient({ aktuelleSpiele, scorers, gruppen, cmsArticles }: HomePageProps) {
   const t = useTranslations()
   const tHome = useTranslations('home')
   const locale = useLocale()
   const isEnglish = locale === 'en'
-  const dateLocale = isEnglish ? 'en-US' : 'pl-PL'
-  const news = getNewsCollections(locale)
 
   const topTeams = gruppen.flatMap((group) => group.teams).sort((a, b) => b.punkte - a.punkte).slice(0, 8)
+
+  const featuredArticle = cmsArticles[0]
+  const restArticles = cmsArticles.slice(1, 7)
 
   const heroStats = [
     { value: '48', label: isEnglish ? 'Teams' : 'Drużyn', icon: Trophy },
@@ -186,21 +188,29 @@ export default function HomePageClient({ aktuelleSpiele, scorers, gruppen }: Hom
         <section className="mx-auto max-w-7xl px-4 py-10">
           <SectionHeader
             title={tHome('aktuelle_news')}
-            eyebrow={isEnglish ? 'Newsroom' : 'Newsroom'}
+            eyebrow="Newsroom"
             actions={
-              <Link href="/news" className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--accent)]">
+              <Link href="/ms-2026" className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--accent)]">
                 {tHome('alle_nachrichten')} <ArrowRight className="h-4 w-4" />
               </Link>
             }
           />
-          <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-            <FeaturedArticleCard artikel={news.wm[0]} locale={dateLocale} />
-            <div className="space-y-4">
-              {news.wm.slice(1, 4).map((artikel) => (
-                <ArticleCard key={artikel.id} artikel={artikel} locale={dateLocale} />
-              ))}
+          {featuredArticle ? (
+            <div className="space-y-5">
+              <BcFeaturedCard article={featuredArticle} />
+              {restArticles.length > 0 && (
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                  {restArticles.map((article) => (
+                    <BcArticleCard key={article._id} article={article} />
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
+          ) : (
+            <Card className="flex min-h-[200px] items-center justify-center text-sm text-[var(--text-muted)]">
+              Ładowanie aktualności…
+            </Card>
+          )}
         </section>
       </FadeInSection>
 
@@ -232,8 +242,8 @@ export default function HomePageClient({ aktuelleSpiele, scorers, gruppen }: Hom
             eyebrow={isEnglish ? 'Categories' : 'Kategorie'}
           />
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {[news.teams[0], news.players[0], news.stadiums[0]].map((article) => (
-              <ArticleCard key={article.id} artikel={article} locale={dateLocale} />
+            {restArticles.slice(3).map((article) => (
+              <BcArticleCard key={article._id} article={article} />
             ))}
           </div>
         </section>

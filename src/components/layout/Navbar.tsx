@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link, usePathname } from '@/i18n/routing'
-import { Menu, X, Search, Trophy, ChevronDown, Newspaper, LayoutGrid } from 'lucide-react'
+import { Menu, X, Search, Trophy, ChevronDown, Newspaper, LayoutGrid, Flag } from 'lucide-react'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
@@ -11,18 +11,26 @@ export function Navbar() {
   const t = useTranslations('nav')
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [openMenu, setOpenMenu] = useState<'wm' | 'ligen' | null>(null)
+  const [openMenu, setOpenMenu] = useState<'wm' | 'ligen' | 'ms2026' | null>(null)
 
   const isActive = (path: string) => pathname === path || pathname.startsWith(`${path}/`)
 
   const primaryLinks = [
-    { href: '/wm-2026', label: t('wm2026'), hasDropdown: true, key: 'wm' as const },
-    { href: '/teams', label: t('teams') },
-    { href: '/spieler', label: t('spieler') },
-    { href: '/spiele', label: t('spiele') },
-    { href: '/statistiken', label: t('statistiken') },
-    { href: '/ligen', label: t('ligen'), hasDropdown: true, key: 'ligen' as const },
+    { href: '/ms-2026', label: 'MŚ 2026', hasDropdown: true, key: 'ms2026' as const },
+    { href: '/reprezentacja', label: 'Reprezentacja', icon: Flag },
+    { href: '/transfery', label: 'Transfery' },
+    { href: '/zawodnicy', label: 'Zawodnicy' },
+    { href: '/strzelcy', label: 'Strzelcy' },
+    { href: '/stadiony', label: 'Stadiony' },
+    { href: '/inne', label: 'Inne' },
     { href: '/news', label: t('news'), icon: Newspaper },
+  ]
+
+  const ms2026SubLinks = [
+    { href: '/ms-2026', label: 'MŚ 2026 – Aktualności' },
+    { href: '/ms-2026/grupy', label: 'Grupy' },
+    { href: '/ms-2026/terminarz', label: 'Terminarz' },
+    { href: '/ms-2026/faza-pucharowa', label: 'Faza pucharowa' },
   ]
 
   const wmSubLinks = [
@@ -30,15 +38,6 @@ export function Navbar() {
     { href: '/wm-2026/spielplan', label: t('spielplan') },
     { href: '/wm-2026/ergebnisse', label: t('ergebnisse') },
     { href: '/wm-2026/bracket', label: t('bracket') },
-  ]
-
-  const leagueLinks = [
-    { href: '/ligen/bundesliga', label: t('bundesliga') },
-    { href: '/ligen/champions-league', label: t('championsLeague') },
-    { href: '/ligen/premier-league', label: t('premierLeague') },
-    { href: '/ligen/la-liga', label: t('laLiga') },
-    { href: '/ligen/serie-a', label: t('serieA') },
-    { href: '/ligen/ligue-1', label: t('ligue1') },
   ]
 
   return (
@@ -50,8 +49,8 @@ export function Navbar() {
             <Trophy className="h-5 w-5" />
           </div>
           <div className="leading-tight">
-            <p className="text-sm font-semibold text-[var(--text-main)]">Matchday Arena</p>
-            <p className="text-xs text-[var(--text-muted)]">Polska piłkarska redakcja</p>
+            <p className="text-sm font-semibold text-[var(--text-main)]">Biało-Czerwoni</p>
+            <p className="text-xs text-[var(--text-muted)]">bialoczerwoni.live</p>
           </div>
         </Link>
 
@@ -84,7 +83,7 @@ export function Navbar() {
                 {'key' in link && openMenu === link.key && (
                   <div className="absolute left-0 top-full mt-2 w-56 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] shadow-[var(--shadow-strong)]">
                     <div className="p-2">
-                      {(link.key === 'wm' ? wmSubLinks : leagueLinks).map((sub) => (
+                      {(link.key === 'ms2026' ? ms2026SubLinks : wmSubLinks).map((sub) => (
                         <Link
                           key={sub.href}
                           href={sub.href}
@@ -145,7 +144,7 @@ export function Navbar() {
                 </Link>
                 {'key' in link && (
                   <div className="ml-3 space-y-1 border-l border-[var(--border)] pl-3">
-                    {(link.key === 'wm' ? wmSubLinks : leagueLinks).map((sub) => (
+                    {(link.key === 'ms2026' ? ms2026SubLinks : wmSubLinks).map((sub) => (
                       <Link
                         key={sub.href}
                         href={sub.href}
