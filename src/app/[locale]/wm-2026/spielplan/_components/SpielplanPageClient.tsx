@@ -14,12 +14,34 @@ export default function SpielplanPageClient({ spiele }: SpielplanPageClientProps
   const t = useTranslations('spielplan')
   const locale = useLocale()
   const [filterGruppe, setFilterGruppe] = useState<string | null>(null)
+  const [statusFilter, setStatusFilter] = useState<'all' | 'live' | 'upcoming' | 'completed' | 'other'>('all')
 
   const gruppen = Array.from(new Set(spiele.map(s => s.gruppe).filter(Boolean)))
+  const statusGroups = {
+    live: spiele.filter((spiel) => spiel.status === 'Live' || spiel.status === 'Halbzeit'),
+    upcoming: spiele.filter((spiel) => spiel.status === 'Geplant'),
+    completed: spiele.filter((spiel) => spiel.status === 'Beendet'),
+  }
+  const otherCount = spiele.length - statusGroups.live.length - statusGroups.upcoming.length - statusGroups.completed.length
+  const statusTabs = [
+    { id: 'all' as const, label: 'Wszystkie', count: spiele.length },
+    { id: 'live' as const, label: 'Live', count: statusGroups.live.length },
+    { id: 'upcoming' as const, label: 'Nadchodzące', count: statusGroups.upcoming.length },
+    { id: 'completed' as const, label: 'Zakończone', count: statusGroups.completed.length },
+    { id: 'other' as const, label: 'Inne', count: otherCount },
+  ]
 
-  const filteredSpiele = filterGruppe
-    ? spiele.filter(s => s.gruppe === filterGruppe)
-    : spiele
+  const filteredSpiele = spiele.filter((spiel) => {
+    const matchesGroup = filterGruppe ? spiel.gruppe === filterGruppe : true
+    const matchesStatus =
+      statusFilter === 'all' ||
+      (statusFilter === 'live' && (spiel.status === 'Live' || spiel.status === 'Halbzeit')) ||
+      (statusFilter === 'upcoming' && spiel.status === 'Geplant') ||
+      (statusFilter === 'completed' && spiel.status === 'Beendet') ||
+      (statusFilter === 'other' && !['Live', 'Halbzeit', 'Geplant', 'Beendet'].includes(spiel.status))
+
+    return matchesGroup && matchesStatus
+  })
 
   const spieleByDatum = filteredSpiele.reduce<Record<string, Spiel[]>>((acc, spiel) => {
     if (!acc[spiel.datum]) acc[spiel.datum] = []
@@ -37,6 +59,23 @@ export default function SpielplanPageClient({ spiele }: SpielplanPageClientProps
         <p style={{ color: 'var(--color-text-muted)' }}>
           {t('untertitel', { count: spiele.length })}
         </p>
+      </div>
+
+      {/* Status tabs */}
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        {statusTabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setStatusFilter(tab.id)}
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200"
+            style={statusFilter === tab.id
+              ? { background: 'var(--color-aka)', color: '#fff' }
+              : { background: 'var(--color-surface-2)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-border)' }}
+          >
+            {tab.label}
+            <span className="ml-1 opacity-70">{tab.count}</span>
+          </button>
+        ))}
       </div>
 
       {/* Filter bar */}

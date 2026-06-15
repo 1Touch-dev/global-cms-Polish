@@ -78,7 +78,10 @@ export async function getLiveMatches() {
 
 // --- Match Details ---
 export async function getMatchDetails(matchId: string) {
-  return fetchFromApi<any>(`/match/${matchId}`, { revalidate: 60 })
+  return fetchFromApi<any>('/fixtures', {
+    params: { id: matchId },
+    revalidate: 60,
+  })
 }
 
 // --- Lineups ---

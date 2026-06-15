@@ -1,25 +1,35 @@
-import Image from 'next/image'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import { Clock, ArrowRight } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
-import { type BialoCzerwoniArticle, bcThumbnail, formatDatePl } from '@/lib/bialoCzerwoniApi'
+import {
+  type BialoCzerwoniArticle,
+  bcPrimaryCategory,
+  bcThumbnail,
+  formatDatePl,
+  resolveBcArticle,
+} from '@/lib/bialoCzerwoniApi'
 
-export function BcArticleCard({ article }: { article: BialoCzerwoniArticle }) {
+export function BcArticleCard({
+  article,
+  locale = 'pl',
+}: {
+  article: BialoCzerwoniArticle
+  locale?: string
+}) {
   const thumb = bcThumbnail(article)
-  const cat = article.category?.[0]
+  const cat = bcPrimaryCategory(article)
+  const resolved = resolveBcArticle(article, locale)
 
   return (
     <Link href={`/wiadomosc/${article.slug}`} className="group block h-full">
       <Card className="card-hover flex h-full flex-col gap-0 overflow-hidden p-0">
         {thumb && (
           <div className="relative aspect-video w-full overflow-hidden">
-            <Image
+            <img
               src={thumb}
-              alt={article.title}
-              fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              alt={resolved.title}
+              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
           </div>
         )}
@@ -32,10 +42,10 @@ export function BcArticleCard({ article }: { article: BialoCzerwoniArticle }) {
             </span>
           </div>
           <h3 className="line-clamp-2 text-base font-semibold leading-snug text-[var(--text-main)] transition group-hover:text-[var(--accent)]">
-            {article.title}
+            {resolved.title}
           </h3>
           <p className="line-clamp-3 flex-1 text-sm leading-relaxed text-[var(--text-muted)]">
-            {article.summary || article.description}
+            {resolved.summary || resolved.description}
           </p>
           <span className="mt-auto inline-flex items-center gap-1 text-sm font-semibold text-[var(--accent)]">
             Czytaj więcej <ArrowRight className="h-4 w-4" />

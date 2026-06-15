@@ -16,21 +16,21 @@ export function Navbar() {
   const isActive = (path: string) => pathname === path || pathname.startsWith(`${path}/`)
 
   const primaryLinks = [
-    { href: '/ms-2026', label: 'MŚ 2026', hasDropdown: true, key: 'ms2026' as const },
-    { href: '/reprezentacja', label: 'Reprezentacja', icon: Flag },
-    { href: '/transfery', label: 'Transfery' },
-    { href: '/zawodnicy', label: 'Zawodnicy' },
-    { href: '/strzelcy', label: 'Strzelcy' },
-    { href: '/stadiony', label: 'Stadiony' },
-    { href: '/inne', label: 'Inne' },
+    { href: '/ms-2026', label: t('ms2026Short'), hasDropdown: true, key: 'ms2026' as const },
+    { href: '/reprezentacja', label: t('nationalTeam'), icon: Flag },
+    { href: '/transfery', label: t('transfers') },
+    { href: '/zawodnicy', label: t('spieler') },
+    { href: '/strzelcy', label: t('torschuetzen') },
+    { href: '/stadiony', label: t('stadien') },
+    { href: '/inne', label: t('other') },
     { href: '/news', label: t('news'), icon: Newspaper },
   ]
 
   const ms2026SubLinks = [
-    { href: '/ms-2026', label: 'MŚ 2026 – Aktualności' },
-    { href: '/ms-2026/grupy', label: 'Grupy' },
-    { href: '/ms-2026/terminarz', label: 'Terminarz' },
-    { href: '/ms-2026/faza-pucharowa', label: 'Faza pucharowa' },
+    { href: '/ms-2026', label: t('ms2026News') },
+    { href: '/ms-2026/grupy', label: t('gruppen') },
+    { href: '/ms-2026/terminarz', label: t('spielplan') },
+    { href: '/ms-2026/faza-pucharowa', label: t('bracket') },
   ]
 
   const wmSubLinks = [
@@ -115,7 +115,7 @@ export function Navbar() {
             type="button"
             onClick={() => setMobileOpen((value) => !value)}
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] text-[var(--text-main)] transition hover:border-[var(--accent)] lg:hidden"
-            aria-label="Menu"
+            aria-label={t('menu')}
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>

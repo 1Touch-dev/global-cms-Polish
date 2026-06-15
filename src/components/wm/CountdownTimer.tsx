@@ -10,18 +10,20 @@ interface TimeLeft {
   sekunden: number
 }
 
-export function CountdownTimer() {
+interface CountdownTimerProps {
+  targetDate?: string
+}
+
+export function CountdownTimer({ targetDate = '2026-06-11T19:00:00Z' }: CountdownTimerProps) {
   const t = useTranslations('wm')
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ tage: 0, stunden: 0, minuten: 0, sekunden: 0 })
-  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
-    const targetDate = new Date('2026-06-11T19:00:00Z')
+    const countdownTarget = new Date(targetDate)
 
     const calculate = () => {
       const now = new Date()
-      const diff = targetDate.getTime() - now.getTime()
+      const diff = countdownTarget.getTime() - now.getTime()
 
       if (diff <= 0) {
         setTimeLeft({ tage: 0, stunden: 0, minuten: 0, sekunden: 0 })
@@ -39,9 +41,7 @@ export function CountdownTimer() {
     calculate()
     const interval = setInterval(calculate, 1000)
     return () => clearInterval(interval)
-  }, [])
-
-  if (!mounted) return null
+  }, [targetDate])
 
   const units = [
     { value: timeLeft.tage, label: t('tage') },

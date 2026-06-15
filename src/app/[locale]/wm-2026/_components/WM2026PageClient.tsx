@@ -1,31 +1,37 @@
 'use client'
 
-import { useLocale, useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/routing'
 import { ArrowRight, Calendar, Flag, MapPin, Target, Trophy, TrendingUp, Users } from 'lucide-react'
 import { CountdownTimer } from '@/components/wm/CountdownTimer'
 import { Card } from '@/components/ui/Card'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import { Badge } from '@/components/ui/Badge'
-import { NewsSection, getNewsCollections } from '@/components/news/NewsSection'
+import { NewsSection } from '@/components/news/NewsSection'
 import type { Gruppe } from '@/types/wm.types'
 
 interface Props {
   gruppen: Gruppe[]
+  stats: {
+    teams: number
+    fixtures: number
+    live: number
+    upcoming: number
+    completed: number
+    groups: number
+  }
 }
 
-export default function WM2026PageClient({ gruppen }: Props) {
+export default function WM2026PageClient({ gruppen, stats }: Props) {
   const t = useTranslations('wm')
-  const locale = useLocale()
-  const news = getNewsCollections(locale)
 
   const tournamentStats = [
-    { label: t('mannschaften'), value: '48', icon: Users },
-    { label: t('spieleTotal'), value: '104', icon: Calendar },
-    { label: t('stadienTotal'), value: '16', icon: MapPin },
-    { label: t('tageTotal'), value: '39', icon: TrendingUp },
-    { label: t('gesamtore'), value: '156', icon: Target },
-    { label: t('zuschauer'), value: '62.4k', icon: Trophy },
+    { label: t('mannschaften'), value: stats.teams || 48, icon: Users },
+    { label: t('spieleTotal'), value: stats.fixtures || 104, icon: Calendar },
+    { label: 'Live', value: stats.live, icon: TrendingUp },
+    { label: 'Nadchodzące', value: stats.upcoming, icon: MapPin },
+    { label: 'Zakończone', value: stats.completed, icon: Target },
+    { label: t('gruppen_uebersicht'), value: stats.groups || gruppen.length, icon: Trophy },
   ]
 
   const schedule = [
@@ -242,7 +248,7 @@ export default function WM2026PageClient({ gruppen }: Props) {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 lg:px-6">
-        <NewsSection titel={t('nachrichten')} news={news.wm} maxArtikel={4} />
+        <NewsSection titel={t('nachrichten')} source="wm" maxArtikel={4} />
       </section>
     </div>
   )

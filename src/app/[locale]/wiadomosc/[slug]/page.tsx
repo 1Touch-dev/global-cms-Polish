@@ -1,39 +1,57 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowLeft, Clock, Tag } from 'lucide-react'
+import { ArrowLeft, Clock, Tag, User } from 'lucide-react'
 import {
   fetchBialoCzerwoniArticleBySlug,
+  fetchBialoCzerwoniRelatedArticles,
+  bcPrimaryCategory,
   bcThumbnail,
   formatDatePl,
+  resolveBcArticle,
 } from '@/lib/bialoCzerwoniApi'
+import { BcArticleCard } from '@/components/cms/BcArticleCard'
+import { BcArticleSocials } from '@/components/cms/BcArticleSocials'
 import { Badge } from '@/components/ui/Badge'
 import { Card } from '@/components/ui/Card'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
-  const article = await fetchBialoCzerwoniArticleBySlug(slug)
+  const { locale, slug } = await params
+  const article = await fetchBialoCzerwoniArticleBySlug(slug, locale)
   if (!article) return { title: 'Artykuł nie znaleziony | Biało-Czerwoni' }
 
+  const resolved = resolveBcArticle(article, locale)
   const thumb = bcThumbnail(article)
+  const image = article.seo?.image || thumb
+  const canonical = `/${locale}/wiadomosc/${slug}`
 
   return {
-    title: `${article.title} | Biało-Czerwoni`,
-    description: article.summary || article.description,
-    alternates: { canonical: `/wiadomosc/${slug}` },
+    title: `${resolved.seoTitle} | Biało-Czerwoni`,
+    description: resolved.seoDescription,
+    keywords: article.seo?.keywords,
+    authors: [{ name: resolved.authorName }],
+    alternates: { canonical },
     openGraph: {
-      title: article.title,
-      description: article.summary || article.description,
-      locale: 'pl_PL',
+      title: resolved.seoTitle,
+      description: resolved.seoDescription,
+      locale: locale === 'en' ? 'en_US' : 'pl_PL',
       type: 'article',
-      publishedTime: article.createdAt,
+      publishedTime: resolved.publishedAt,
       modifiedTime: article.updatedAt,
-      ...(thumb && { images: [{ url: thumb, alt: article.title }] }),
+      authors: [resolved.authorName],
+      tags: resolved.tags,
+      ...(image && { images: [{ url: image, alt: resolved.title }] }),
+    },
+    twitter: {
+      card: image ? 'summary_large_image' : 'summary',
+      title: resolved.seoTitle,
+      description: resolved.seoDescription,
+      ...(image && { images: [image] }),
     },
   }
 }
@@ -41,12 +59,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export const revalidate = 60
 
 export default async function WiadomoscPage({ params }: Props) {
-  const { slug } = await params
-  const article = await fetchBialoCzerwoniArticleBySlug(slug)
+  const { locale, slug } = await params
+  const article = await fetchBialoCzerwoniArticleBySlug(slug, locale)
 
   if (!article) notFound()
 
+  const resolved = resolveBcArticle(article, locale)
   const thumb = bcThumbnail(article)
+  const canonicalUrl = `https://bialoczerwoni.live/${locale}/wiadomosc/${article.slug}`
+  const related = await fetchBialoCzerwoniRelatedArticles(article, { limit: 3 })
 
   return (
     <article className="mx-auto max-w-4xl px-4 py-10 lg:px-6">
@@ -59,39 +80,40 @@ export default async function WiadomoscPage({ params }: Props) {
 
       <header className="space-y-6 mb-8">
         <div className="flex flex-wrap items-center gap-2">
-          {article.category.map((cat) => (
+          <Badge>{bcPrimaryCategory(article)}</Badge>
+          {article.category?.filter((cat) => cat !== bcPrimaryCategory(article)).map((cat) => (
             <Badge key={cat}>{cat}</Badge>
           ))}
         </div>
 
         <h1 className="text-3xl font-bold leading-tight text-[var(--text-main)] md:text-4xl lg:text-5xl">
-          {article.title}
+          {resolved.title}
         </h1>
 
-        {(article.summary || article.description) && (
+        {(resolved.summary || resolved.description) && (
           <p className="text-lg leading-relaxed text-[var(--text-muted)]">
-            {article.summary || article.description}
+            {resolved.summary || resolved.description}
           </p>
         )}
 
         <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--text-muted)]">
           <span className="inline-flex items-center gap-1.5">
             <Clock className="h-4 w-4" />
-            {formatDatePl(article.createdAt, { day: '2-digit', month: 'long', year: 'numeric' })}
+            {formatDatePl(resolved.publishedAt, { day: '2-digit', month: 'long', year: 'numeric' })}
           </span>
-          <span className="font-semibold text-[var(--accent)]">Biało-Czerwoni</span>
+          <span className="inline-flex items-center gap-1.5 font-semibold text-[var(--accent)]">
+            <User className="h-4 w-4" />
+            {resolved.authorName}
+          </span>
         </div>
       </header>
 
       {thumb && (
         <div className="relative mb-8 aspect-video w-full overflow-hidden rounded-[20px]">
-          <Image
+          <img
             src={thumb}
-            alt={article.title}
-            fill
-            priority
-            className="object-cover"
-            sizes="(max-width: 896px) 100vw, 896px"
+            alt={resolved.title}
+            className="h-full w-full object-cover"
           />
         </div>
       )}
@@ -99,14 +121,21 @@ export default async function WiadomoscPage({ params }: Props) {
       <Card className="prose prose-invert max-w-none p-6 md:p-8">
         <div
           className="article-content"
-          dangerouslySetInnerHTML={{ __html: article.content }}
+          dangerouslySetInnerHTML={{ __html: resolved.content }}
         />
       </Card>
 
-      {article.tags && article.tags.length > 0 && (
+      <BcArticleSocials
+        title={resolved.title}
+        canonicalUrl={canonicalUrl}
+        videoUrl={resolved.videoUrl}
+        twitterUrl={resolved.twitterUrl}
+      />
+
+      {resolved.tags.length > 0 && (
         <div className="mt-8 flex flex-wrap items-center gap-2">
           <Tag className="h-4 w-4 shrink-0 text-[var(--text-muted)]" />
-          {article.tags.map((tag) => (
+          {resolved.tags.map((tag) => (
             <span
               key={tag}
               className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1 text-xs text-[var(--text-muted)]"
@@ -115,6 +144,17 @@ export default async function WiadomoscPage({ params }: Props) {
             </span>
           ))}
         </div>
+      )}
+
+      {related.length > 0 && (
+        <section className="mt-12">
+          <SectionHeader title="Powiązane artykuły" eyebrow="CMS Newsroom" />
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {related.map((item) => (
+              <BcArticleCard key={item._id} article={item} locale={locale} />
+            ))}
+          </div>
+        </section>
       )}
     </article>
   )

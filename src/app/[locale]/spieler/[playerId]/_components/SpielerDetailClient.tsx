@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import { Link } from '@/i18n/routing'
 import { ArrowLeft, Target, Zap, Activity, Shield, Award, User } from 'lucide-react'
 import { FadeInSection } from '@/components/ui/PageTransition'
-import { NewsSection, getNewsCollections } from '@/components/news/NewsSection'
+import { NewsSection } from '@/components/news/NewsSection'
 
 interface Props {
   playerId: string
@@ -23,7 +23,6 @@ export default function SpielerDetailClient({ playerId, playerData }: Props) {
   const t = useTranslations('spieler')
   const tAllg = useTranslations('allgemein')
   const locale = useLocale()
-  const news = getNewsCollections(locale)
   const [activeTab, setActiveTab] = useState<'stats' | 'karriere'>('stats')
 
   function mapPosition(pos: string): string {
@@ -283,7 +282,7 @@ export default function SpielerDetailClient({ playerId, playerData }: Props) {
 
       {/* News */}
       <div className="mt-8">
-        <NewsSection titel={t('nachrichten')} news={news.players} maxArtikel={3} kompakt />
+        <NewsSection titel={t('nachrichten')} source="players" maxArtikel={3} kompakt />
       </div>
     </div>
   )

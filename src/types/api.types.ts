@@ -139,8 +139,8 @@ export interface ApiLineup {
   team: { id: number; name: string; logo: string; colors: any }
   coach: { id: number; name: string; photo: string }
   formation: string
-  startXI: { player: { id: number; name: string; number: number; pos: string; grid: string | null } }[]
-  substitutes: { player: { id: number; name: string; number: number; pos: string; grid: string | null } }[]
+  startXI: { player: { id: number; name: string; number: number; pos: string; grid: string | null; photo?: string } }[]
+  substitutes: { player: { id: number; name: string; number: number; pos: string; grid: string | null; photo?: string } }[]
 }
 
 // --- Events ---

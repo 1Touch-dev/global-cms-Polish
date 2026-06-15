@@ -60,9 +60,10 @@ export default async function LocaleLayout({
         <title>{metadata.title as string}</title>
         <meta name="description" content={metadata.description as string} />
         <meta name="theme-color" content="#0b6623" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
       </head>
-      <body className="min-h-screen bg-[var(--bg)] text-[var(--text-main)] antialiased" style={{ fontFamily: 'var(--font-body)' }}>
+      <body className="min-h-screen bg-[var(--bg)] text-[var(--text-main)] antialiased" style={{ fontFamily: 'var(--font-body)' }} suppressHydrationWarning>
         <StoreProvider>
           <NextIntlClientProvider messages={messages}>
             <ThemeProvider>

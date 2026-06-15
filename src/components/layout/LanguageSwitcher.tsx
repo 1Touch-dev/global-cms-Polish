@@ -9,11 +9,17 @@ export function LanguageSwitcher() {
   const pathname = usePathname()
 
   const targetLocale = locale === 'pl' ? 'en' : 'pl'
+  const switchLocale = () => {
+    const search = typeof window !== 'undefined' ? window.location.search : ''
+    const hash = typeof window !== 'undefined' ? window.location.hash : ''
+    const href = `${pathname}${search}${hash}`
+    router.replace(href, { locale: targetLocale })
+  }
 
   return (
     <button
       type="button"
-      onClick={() => router.replace(pathname, { locale: targetLocale })}
+      onClick={switchLocale}
       className="inline-flex h-10 items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 text-xs font-semibold tracking-[0.18em] text-[var(--text-muted)] shadow-[var(--shadow-soft)] transition hover:-translate-y-0.5 hover:border-[var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-neon)]"
       aria-label="Zmień język"
     >

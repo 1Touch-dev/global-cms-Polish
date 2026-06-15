@@ -1,13 +1,13 @@
 'use client'
 
-import { useLocale, useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { WM_STADIEN, Stadion } from '@/lib/stadien-data'
 import { StadionInfo } from '@/components/stadien/StadionInfo'
 import { MapPin, List, Map } from 'lucide-react'
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
 import { FadeInSection, StaggerContainer, StaggerItem } from '@/components/ui/PageTransition'
-import { NewsSection, getNewsCollections } from '@/components/news/NewsSection'
+import { NewsSection } from '@/components/news/NewsSection'
 
 const StadionMap = dynamic(
   () => import('@/components/stadien/StadionMapClient'),
@@ -16,8 +16,6 @@ const StadionMap = dynamic(
 
 export default function StadienPage() {
   const t = useTranslations('stadien')
-  const locale = useLocale()
-  const news = getNewsCollections(locale)
   const [filterLand, setFilterLand] = useState<string | null>(null)
   const [view, setView] = useState<'map' | 'grid'>('map')
   const [selectedStadion, setSelectedStadion] = useState<Stadion | null>(null)
@@ -119,7 +117,7 @@ export default function StadienPage() {
 
       {/* News */}
       <div className="mt-8">
-        <NewsSection titel={t('news_titel')} news={news.stadiums} maxArtikel={3} kompakt />
+        <NewsSection titel={t('news_titel')} source="stadiums" maxArtikel={3} kompakt />
       </div>
     </div>
   )

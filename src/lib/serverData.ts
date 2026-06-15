@@ -15,6 +15,7 @@ import {
   getPlayerStatistics,
   searchPlayers,
   getPredictions,
+  getHeadToHead,
 } from './footballApi'
 import { Gruppe, KORundeSpiel } from '@/types/wm.types'
 import { ApiResponse, ApiFixture, ApiTopPlayer, ApiStandingGroup, ApiTeamResponse } from '@/types/api.types'
@@ -86,19 +87,62 @@ export async function getSpielePageData() {
 
 // --- Teams Page Data ---
 export async function getTeamsPageData() {
-  const [teamsRes, standingsRes] = await Promise.all([
+  const [teamsRes, standingsRes, fixturesRes] = await Promise.all([
     getTeams({ league: WM_LEAGUE_ID, season: WM_SEASON }),
     getStandings({ league: WM_LEAGUE_ID, season: WM_SEASON }),
+    getFixtures({ league: WM_LEAGUE_ID, season: WM_SEASON, next: '80' }),
   ])
 
   const teamsData = teamsRes as ApiResponse<ApiTeamResponse[]> | null
   const standingsData = standingsRes as ApiResponse<ApiStandingGroup[]> | null
+  const fixturesData = fixturesRes as ApiResponse<ApiFixture[]> | null
 
-  const teams: Team[] = (teamsData?.response || []).map((t) => mapApiTeamToTeam(t))
+  let teams: Team[] = (teamsData?.response || []).map((t) => mapApiTeamToTeam(t))
 
   const gruppen = standingsData?.response?.[0]
     ? mapStandingToGruppe(standingsData.response[0].league.standings)
     : []
+
+  if (teams.length === 0 && gruppen.length > 0) {
+    teams = gruppen.flatMap((gruppe) =>
+      gruppe.teams.map((team) => ({
+        id: team.id,
+        name: team.name,
+        kurzname: team.kurzname,
+        code: team.kurzname.toLowerCase(),
+        flagge: team.flagge,
+        wappen: team.wappen || '',
+        land: team.name,
+        kontinent: '',
+        fifaRanking: 0,
+        trainer: '',
+        gruppe: gruppe.name,
+      })),
+    )
+  }
+
+  if (teams.length === 0) {
+    const uniqueTeams = new Map<number, Team>()
+    ;(fixturesData?.response || []).forEach((fixture) => {
+      ;[fixture.teams.home, fixture.teams.away].forEach((team) => {
+        if (!team?.id || uniqueTeams.has(team.id)) return
+        const kurzname = team.name.slice(0, 3).toUpperCase()
+        uniqueTeams.set(team.id, {
+          id: team.id,
+          name: team.name,
+          kurzname,
+          code: kurzname.toLowerCase(),
+          flagge: '',
+          wappen: team.logo || '',
+          land: team.name,
+          kontinent: '',
+          fifaRanking: 0,
+          trainer: '',
+        })
+      })
+    })
+    teams = Array.from(uniqueTeams.values())
+  }
 
   // Assign groups to teams
   gruppen.forEach((g) => {
@@ -194,11 +238,17 @@ export async function getSpielerPageData() {
 
 // --- Single Match Data ---
 export async function getMatchPageData(matchId: string) {
-  const [matchRes, eventsRes, statsRes, lineupsRes] = await Promise.all([
-    getMatchDetails(matchId),
+  const matchRes = await getMatchDetails(matchId)
+  const matchFixture = (matchRes as any)?.response?.[0]
+  const h2hKey = matchFixture?.teams?.home?.id && matchFixture?.teams?.away?.id
+    ? `${matchFixture.teams.home.id}-${matchFixture.teams.away.id}`
+    : null
+
+  const [eventsRes, statsRes, lineupsRes, h2hRes] = await Promise.all([
     getMatchEvents(matchId),
     getFixtureStats(matchId),
     getLineups(matchId),
+    h2hKey ? getHeadToHead(h2hKey) : Promise.resolve(null),
   ])
 
   return {
@@ -206,6 +256,7 @@ export async function getMatchPageData(matchId: string) {
     events: eventsRes,
     stats: statsRes,
     lineups: lineupsRes,
+    h2h: h2hRes,
   }
 }
 
@@ -388,17 +439,23 @@ export async function getWMErgebnisseData() {
 
 // --- WM 2026 Spielplan (All / Upcoming Fixtures) ---
 export async function getWMSpielplanData() {
-  const [upcomingRes, pastRes] = await Promise.all([
+  const [liveRes, upcomingRes, pastRes] = await Promise.all([
+    getLiveMatches(),
     getFixtures({ league: WM_LEAGUE_ID, season: WM_SEASON, next: '60' }),
     getFixtures({ league: WM_LEAGUE_ID, season: WM_SEASON, last: '20' }),
   ])
+  const live = liveRes as ApiResponse<ApiFixture[]> | null
   const upcoming = upcomingRes as ApiResponse<ApiFixture[]> | null
   const past = pastRes as ApiResponse<ApiFixture[]> | null
 
+  const liveSpiele = (live?.response || []).map(mapFixtureToSpiel)
   const upcomingSpiele = (upcoming?.response || []).map(mapFixtureToSpiel)
   const pastSpiele = (past?.response || []).map(mapFixtureToSpiel)
 
-  return [...pastSpiele, ...upcomingSpiele]
+  const byId = new Map<number, Spiel>()
+  ;[...liveSpiele, ...pastSpiele, ...upcomingSpiele].forEach((spiel) => byId.set(spiel.id, spiel))
+
+  return Array.from(byId.values())
 }
 
 // --- WM 2026 KO-Runde (Bracket) ---

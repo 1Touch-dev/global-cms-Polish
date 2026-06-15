@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import { FadeInSection } from '@/components/ui/PageTransition'
 import { SpielKarte } from '@/components/wm/SpielKarte'
-import { NewsSection, getNewsCollections } from '@/components/news/NewsSection'
+import { NewsSection } from '@/components/news/NewsSection'
 import { Spiel } from '@/types/spiel.types'
 
 type TabType = 'kader' | 'spielplan' | 'statistiken' | 'h2h'
@@ -61,7 +61,6 @@ interface Props {
 export default function TeamDetailClient({ teamId, apiData, mockTeam }: Props) {
   const t = useTranslations('teams')
   const locale = useLocale()
-  const news = getNewsCollections(locale)
   const [activeTab, setActiveTab] = useState<TabType>('kader')
 
   const teamName = apiData?.team?.name || mockTeam?.name || '—'
@@ -389,7 +388,7 @@ export default function TeamDetailClient({ teamId, apiData, mockTeam }: Props) {
 
       {/* News */}
       <FadeInSection>
-        <NewsSection titel={t('nachrichten')} news={news.teams} maxArtikel={3} kompakt />
+        <NewsSection titel={t('nachrichten')} source="teams" maxArtikel={3} kompakt teamNames={[teamName]} />
       </FadeInSection>
     </div>
   )

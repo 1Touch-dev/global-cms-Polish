@@ -3,16 +3,22 @@
 import { useLocale, useTranslations } from 'next-intl'
 import { Link } from '@/i18n/routing'
 import { ArrowRight, CalendarDays, Trophy, Activity, Gauge, Sparkles } from 'lucide-react'
-import { FadeInSection, StaggerContainer, StaggerItem } from '@/components/ui/PageTransition'
+import { FadeInSection } from '@/components/ui/PageTransition'
 import { Spiel } from '@/types/spiel.types'
 import { LiveMatchCard } from '@/components/layout/LiveMatchCard'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import { LeagueCard } from '@/components/layout/LeagueCard'
+import { CountdownTimer } from '@/components/wm/CountdownTimer'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { BcFeaturedCard } from '@/components/cms/BcFeaturedCard'
 import { BcArticleCard } from '@/components/cms/BcArticleCard'
 import type { BialoCzerwoniArticle } from '@/lib/bialoCzerwoniApi'
+import type { WorldCupMatchHeroData } from '@/lib/worldcupMatch'
+
+type HeroMatch = WorldCupMatchHeroData & {
+  kickoffLabel: string
+}
 
 interface HomePageProps {
   aktuelleSpiele: Spiel[]
@@ -39,15 +45,19 @@ interface HomePageProps {
     }[]
   }[]
   cmsArticles: BialoCzerwoniArticle[]
+  nextWorldCupMatch: HeroMatch
 }
 
-export default function HomePageClient({ aktuelleSpiele, scorers, gruppen, cmsArticles }: HomePageProps) {
-  const t = useTranslations()
+export default function HomePageClient({ aktuelleSpiele, scorers, gruppen, cmsArticles, nextWorldCupMatch }: HomePageProps) {
   const tHome = useTranslations('home')
   const locale = useLocale()
   const isEnglish = locale === 'en'
 
-  const topTeams = gruppen.flatMap((group) => group.teams).sort((a, b) => b.punkte - a.punkte).slice(0, 8)
+  const topTeams = Array.from(
+    new Map(gruppen.flatMap((group) => group.teams).map((team) => [team.id, team])).values(),
+  )
+    .sort((a, b) => b.punkte - a.punkte)
+    .slice(0, 8)
 
   const featuredArticle = cmsArticles[0]
   const restArticles = cmsArticles.slice(1, 7)
@@ -116,8 +126,8 @@ export default function HomePageClient({ aktuelleSpiele, scorers, gruppen, cmsAr
               </div>
               <div className="space-y-4">
                 {aktuelleSpiele.length > 0 ? (
-                  aktuelleSpiele.slice(0, 3).map((spiel) => (
-                    <LiveMatchCard key={spiel.id} spiel={spiel} />
+                  aktuelleSpiele.slice(0, 3).map((spiel, index) => (
+                    <LiveMatchCard key={`${spiel.id}-${index}`} spiel={spiel} />
                   ))
                 ) : (
                   <Card className="flex min-h-[180px] items-center justify-center text-center">
@@ -127,6 +137,60 @@ export default function HomePageClient({ aktuelleSpiele, scorers, gruppen, cmsAr
               </div>
             </Card>
           </div>
+
+          <Card className="mt-8 p-5 md:p-6">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase text-[var(--accent)]">
+                  {isEnglish ? 'Next World Cup match' : 'Najblizszy mecz MS'}
+                </p>
+                <h2 className="text-2xl text-[var(--text-main)]">{nextWorldCupMatch.round}</h2>
+              </div>
+              <Link href={nextWorldCupMatch.id ? `/spiele/${nextWorldCupMatch.id}` : '/wm-2026/spielplan'} className="text-sm font-semibold text-[var(--accent)]">
+                {isEnglish ? 'Open match' : 'Otworz mecz'}
+              </Link>
+            </div>
+            <div className="grid gap-4 md:grid-cols-[1fr_auto_1fr] md:items-center">
+              <div className="flex items-center gap-3 md:justify-end">
+                {nextWorldCupMatch.homeTeam.logo ? (
+                  <img src={nextWorldCupMatch.homeTeam.logo} alt={nextWorldCupMatch.homeTeam.name} className="h-12 w-12 object-contain" />
+                ) : (
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface-soft)] text-xs font-semibold text-[var(--text-main)]">
+                    {nextWorldCupMatch.homeTeam.shortName}
+                  </span>
+                )}
+                <div className="text-left md:text-right">
+                  <p className="text-sm text-[var(--text-main)]">{nextWorldCupMatch.homeTeam.name}</p>
+                  <p className="text-xs text-[var(--text-muted)]">{nextWorldCupMatch.homeTeam.shortName}</p>
+                </div>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl text-[var(--accent)]">VS</p>
+                <p className="text-xs text-[var(--text-muted)]">{nextWorldCupMatch.tournament}</p>
+              </div>
+              <div className="flex items-center gap-3">
+                {nextWorldCupMatch.awayTeam.logo ? (
+                  <img src={nextWorldCupMatch.awayTeam.logo} alt={nextWorldCupMatch.awayTeam.name} className="h-12 w-12 object-contain" />
+                ) : (
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface-soft)] text-xs font-semibold text-[var(--text-main)]">
+                    {nextWorldCupMatch.awayTeam.shortName}
+                  </span>
+                )}
+                <div>
+                  <p className="text-sm text-[var(--text-main)]">{nextWorldCupMatch.awayTeam.name}</p>
+                  <p className="text-xs text-[var(--text-muted)]">{nextWorldCupMatch.awayTeam.shortName}</p>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 grid gap-2 text-sm text-[var(--text-muted)] md:grid-cols-3">
+              <p>{nextWorldCupMatch.kickoffLabel}</p>
+              <p>{nextWorldCupMatch.venue}</p>
+              <p>{nextWorldCupMatch.location}</p>
+            </div>
+            <div className="mt-5">
+              <CountdownTimer targetDate={nextWorldCupMatch.date} />
+            </div>
+          </Card>
         </div>
       </section>
 
@@ -159,7 +223,9 @@ export default function HomePageClient({ aktuelleSpiele, scorers, gruppen, cmsAr
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-2xl text-[var(--accent)]">{scorer.tore}</span>
-                    <span className="text-xs text-[var(--text-muted)]">{isEnglish ? 'goals' : 'goli'}</span>
+                    <span className="text-xs text-[var(--text-muted)]">
+                      {tHome.has('hero_tore') ? tHome('hero_tore') : isEnglish ? 'goals' : 'goli'}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -197,11 +263,11 @@ export default function HomePageClient({ aktuelleSpiele, scorers, gruppen, cmsAr
           />
           {featuredArticle ? (
             <div className="space-y-5">
-              <BcFeaturedCard article={featuredArticle} />
+              <BcFeaturedCard article={featuredArticle} locale={locale} />
               {restArticles.length > 0 && (
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                   {restArticles.map((article) => (
-                    <BcArticleCard key={article._id} article={article} />
+                    <BcArticleCard key={article._id} article={article} locale={locale} />
                   ))}
                 </div>
               )}
@@ -243,7 +309,7 @@ export default function HomePageClient({ aktuelleSpiele, scorers, gruppen, cmsAr
           />
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {restArticles.slice(3).map((article) => (
-              <BcArticleCard key={article._id} article={article} />
+              <BcArticleCard key={article._id} article={article} locale={locale} />
             ))}
           </div>
         </section>
