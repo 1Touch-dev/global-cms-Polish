@@ -2,6 +2,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { Bebas_Neue, Inter } from 'next/font/google'
+import Script from 'next/script'
 import { routing } from '@/i18n/routing'
 import { StoreProvider } from '@/store/provider'
 import { Navbar } from '@/components/layout/Navbar'
@@ -62,6 +63,18 @@ export default async function LocaleLayout({
         <meta name="theme-color" content="#0b6623" />
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-YVFJ334HLP"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-YVFJ334HLP');
+          `}
+        </Script>
       </head>
       <body className="min-h-screen bg-[var(--bg)] text-[var(--text-main)] antialiased" style={{ fontFamily: 'var(--font-body)' }} suppressHydrationWarning>
         <StoreProvider>
