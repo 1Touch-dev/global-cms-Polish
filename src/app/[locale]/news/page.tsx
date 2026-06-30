@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import {
   BC_ENDPOINTS,
   type BcEndpointName,
@@ -5,6 +6,16 @@ import {
   fetchBialoCzerwoniNewsPage,
 } from '@/lib/bialoCzerwoniApi'
 import { BcSectionPage } from '@/components/cms/BcSectionPage'
+import { getPageMetadata } from '@/lib/metadata'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  return getPageMetadata('news', locale, '/news')
+}
 
 const NEWS_FILTERS: { label: string; value: '' | BcEndpointName }[] = [
   { label: 'Wszystkie', value: '' },

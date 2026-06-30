@@ -17,6 +17,8 @@ import { BcArticleSocials } from '@/components/cms/BcArticleSocials'
 import { Badge } from '@/components/ui/Badge'
 import { Card } from '@/components/ui/Card'
 import { SectionHeader } from '@/components/ui/SectionHeader'
+import { ArticleJsonLd } from '@/components/seo/JsonLd'
+import { SITE_URL } from '@/lib/metadata'
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>
@@ -30,14 +32,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolved = resolveBcArticle(article, locale)
   const thumb = bcThumbnail(article)
   const image = article.seo?.image || thumb
-  const canonical = `/${locale}/wiadomosc/${slug}`
+  const canonical = `${SITE_URL}/${locale}/wiadomosc/${slug}`
 
   return {
     title: `${resolved.seoTitle} | Biało-Czerwoni`,
     description: resolved.seoDescription,
     keywords: article.seo?.keywords,
     authors: [{ name: resolved.authorName }],
-    alternates: { canonical },
+    metadataBase: new URL(SITE_URL),
+    alternates: {
+      canonical,
+      languages: {
+        pl: `${SITE_URL}/pl/wiadomosc/${slug}`,
+        en: `${SITE_URL}/en/wiadomosc/${slug}`,
+      },
+    },
     openGraph: {
       title: resolved.seoTitle,
       description: resolved.seoDescription,
@@ -68,7 +77,7 @@ export default async function WiadomoscPage({ params }: Props) {
 
   const resolved = resolveBcArticle(article, locale)
   const thumb = bcThumbnail(article)
-  const canonicalUrl = `https://bialoczerwoni.live/${locale}/wiadomosc/${article.slug}`
+  const canonicalUrl = `${SITE_URL}/${locale}/wiadomosc/${article.slug}`
   const related = await fetchBialoCzerwoniRelatedArticles(article, { limit: 3 })
 
   // Extra images beyond the cover thumbnail
@@ -76,6 +85,17 @@ export default async function WiadomoscPage({ params }: Props) {
 
   return (
     <article className="mx-auto max-w-4xl px-4 py-10 lg:px-6">
+      <ArticleJsonLd
+        title={resolved.title}
+        description={resolved.seoDescription}
+        url={canonicalUrl}
+        imageUrl={thumb}
+        publishedAt={resolved.publishedAt}
+        updatedAt={article.updatedAt}
+        authorName={resolved.authorName}
+        tags={resolved.tags}
+        locale={locale}
+      />
       <Link
         href="/ms-2026"
         className="mb-8 inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm text-[var(--text-muted)] transition hover:border-[var(--accent)] hover:text-[var(--text-main)]"

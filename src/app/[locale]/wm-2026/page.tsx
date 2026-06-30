@@ -1,8 +1,21 @@
+import type { Metadata } from 'next'
 import { getTeamsPageData, getWMGruppenData, getWMSpielplanData } from '@/lib/serverData'
 import type { Gruppe } from '@/types/wm.types'
 import type { Spiel } from '@/types/spiel.types'
 import type { Team } from '@/types/team.types'
 import WM2026PageClient from './_components/WM2026PageClient'
+import { getPageMetadata } from '@/lib/metadata'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  return getPageMetadata('wm', locale, '/wm-2026')
+}
+
+export const revalidate = 60
 
 export const dynamic = 'force-dynamic'
 
