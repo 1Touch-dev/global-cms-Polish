@@ -31,7 +31,7 @@ async function fetchCountry(country: string, landLabel: 'USA' | 'Mexiko' | 'Kana
       kapazitaet: v.capacity || 0,
       koordinaten: v.coordinates?.lat && v.coordinates?.lng
         ? { lat: v.coordinates.lat, lng: v.coordinates.lng }
-        : undefined,
+        : { lat: 0, lng: 0 },
       spiele: 0,
       bild: v.image || '',
       eroeffnet: 0,
