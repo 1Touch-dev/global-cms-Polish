@@ -172,7 +172,7 @@ async function bcFetch<T>(
   })
 
   try {
-    const res = await fetch(url.toString(), { next: { revalidate } })
+    const res = await fetch(url.toString(), { next: { revalidate }, signal: AbortSignal.timeout(5000) })
     if (!res.ok) {
       console.error(`[BialoCzerwoni CMS] ${res.status} ${res.statusText} — ${url}`)
       return null

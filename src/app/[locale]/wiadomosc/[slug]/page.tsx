@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, Clock, Tag, User } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import {
   fetchBialoCzerwoniArticleBySlug,
   fetchBialoCzerwoniRelatedArticles,
@@ -69,6 +71,9 @@ export default async function WiadomoscPage({ params }: Props) {
   const canonicalUrl = `https://bialoczerwoni.live/${locale}/wiadomosc/${article.slug}`
   const related = await fetchBialoCzerwoniRelatedArticles(article, { limit: 3 })
 
+  // Extra images beyond the cover thumbnail
+  const extraImages = (article.imageUrls || []).filter((url) => url && url !== thumb)
+
   return (
     <article className="mx-auto max-w-4xl px-4 py-10 lg:px-6">
       <Link
@@ -119,11 +124,70 @@ export default async function WiadomoscPage({ params }: Props) {
       )}
 
       <Card className="prose prose-invert max-w-none p-6 md:p-8">
-        <div
-          className="article-content"
-          dangerouslySetInnerHTML={{ __html: resolved.content }}
-        />
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            img: ({ src, alt }) => (
+              <span className="block my-6">
+                <img
+                  src={src}
+                  alt={alt ?? ''}
+                  className="w-full rounded-xl object-cover"
+                />
+              </span>
+            ),
+            a: ({ href, children }) => (
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--accent)] underline underline-offset-2 hover:no-underline"
+              >
+                {children}
+              </a>
+            ),
+            h2: ({ children }) => (
+              <h2 className="text-xl font-bold mt-8 mb-3 text-[var(--text-main)]">{children}</h2>
+            ),
+            h3: ({ children }) => (
+              <h3 className="text-lg font-semibold mt-6 mb-2 text-[var(--text-main)]">{children}</h3>
+            ),
+            p: ({ children }) => (
+              <p className="mb-4 leading-relaxed text-[var(--text-muted)]">{children}</p>
+            ),
+            ul: ({ children }) => (
+              <ul className="list-disc pl-5 mb-4 space-y-1 text-[var(--text-muted)]">{children}</ul>
+            ),
+            ol: ({ children }) => (
+              <ol className="list-decimal pl-5 mb-4 space-y-1 text-[var(--text-muted)]">{children}</ol>
+            ),
+            blockquote: ({ children }) => (
+              <blockquote className="border-l-4 border-[var(--accent)] pl-4 italic text-[var(--text-muted)] my-4">
+                {children}
+              </blockquote>
+            ),
+          }}
+        >
+          {resolved.content}
+        </ReactMarkdown>
       </Card>
+
+      {extraImages.length > 0 && (
+        <section className="mt-8">
+          <h2 className="mb-4 text-lg font-semibold text-[var(--text-main)]">Galeria zdjęć</h2>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {extraImages.map((url, i) => (
+              <div key={url} className="relative aspect-video overflow-hidden rounded-xl">
+                <img
+                  src={url}
+                  alt={`${resolved.title} — zdjęcie ${i + 1}`}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <BcArticleSocials
         title={resolved.title}
@@ -150,8 +214,13 @@ export default async function WiadomoscPage({ params }: Props) {
         <section className="mt-12">
           <SectionHeader title="Powiązane artykuły" eyebrow="CMS Newsroom" />
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {related.map((item) => (
-              <BcArticleCard key={item._id} article={item} locale={locale} />
+            {related.map((item, index) => (
+              <div key={item._id} className="relative">
+                <span className="absolute -top-2.5 -left-2.5 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-[var(--accent)] text-xs font-bold text-white shadow">
+                  {index + 1}
+                </span>
+                <BcArticleCard article={item} locale={locale} />
+              </div>
             ))}
           </div>
         </section>

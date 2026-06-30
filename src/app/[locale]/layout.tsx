@@ -1,7 +1,7 @@
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
-import { Bebas_Neue, Inter } from 'next/font/google'
+import Script from 'next/script'
 import { routing } from '@/i18n/routing'
 import { StoreProvider } from '@/store/provider'
 import { Navbar } from '@/components/layout/Navbar'
@@ -13,20 +13,6 @@ import { ScrollToTop } from '@/components/ui/ScrollToTop'
 import { AppShell } from '@/components/layout/AppShell'
 import { getPageMetadata } from '@/lib/metadata'
 import '../globals.css'
-
-const displayFont = Bebas_Neue({
-  subsets: ['latin'],
-  variable: '--font-display',
-  weight: '400',
-  display: 'swap',
-})
-
-const bodyFont = Inter({
-  subsets: ['latin'],
-  variable: '--font-body',
-  weight: ['400', '500', '600', '700'],
-  display: 'swap',
-})
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
@@ -53,7 +39,6 @@ export default async function LocaleLayout({
   return (
     <html
       lang={locale}
-      className={`${displayFont.variable} ${bodyFont.variable}`}
       suppressHydrationWarning
     >
       <head>
@@ -61,9 +46,9 @@ export default async function LocaleLayout({
         <meta name="description" content={metadata.description as string} />
         <meta name="theme-color" content="#0b6623" />
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-        <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
       </head>
       <body className="min-h-screen bg-[var(--bg)] text-[var(--text-main)] antialiased" style={{ fontFamily: 'var(--font-body)' }} suppressHydrationWarning>
+        <Script id="theme-bootstrap" strategy="beforeInteractive">{themeBootstrap}</Script>
         <StoreProvider>
           <NextIntlClientProvider messages={messages}>
             <ThemeProvider>

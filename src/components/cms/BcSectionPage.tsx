@@ -5,6 +5,7 @@ import { BcArticleCard } from './BcArticleCard'
 import { BcFeaturedCard } from './BcFeaturedCard'
 import { BcNewsSearchBar } from './BcNewsSearchBar'
 import { SectionHeader } from '@/components/ui/SectionHeader'
+import AffiliateBannerFrame from '@/components/affiliates/AffiliateBannerFrame'
 import type { BcListResponse } from '@/lib/bialoCzerwoniApi'
 
 export interface BcSectionFilter {
@@ -120,10 +121,15 @@ export function BcSectionPage({
       <BcFeaturedCard article={featured} locale={locale} />
 
       {rest.length > 0 && (
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {rest.map((article) => (
-            <BcArticleCard key={article._id} article={article} locale={locale} />
-          ))}
+        <div className="grid gap-6 xl:grid-cols-[1fr_120px]">
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {rest.map((article) => (
+              <BcArticleCard key={article._id} article={article} locale={locale} />
+            ))}
+          </div>
+          <div className="hidden xl:block">
+            <AffiliateBannerFrame locale={locale ?? 'pl'} variant="verticalSecondary" />
+          </div>
         </div>
       )}
 

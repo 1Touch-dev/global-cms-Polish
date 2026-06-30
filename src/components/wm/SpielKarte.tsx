@@ -2,13 +2,15 @@
 
 import { useTranslations, useLocale } from 'next-intl'
 import { MapPin, Calendar, Clock } from 'lucide-react'
+import { Link } from '@/i18n/routing'
 import type { Spiel } from '@/types/spiel.types'
 
 interface SpielKarteProps {
   spiel: Spiel
+  href?: string
 }
 
-export function SpielKarte({ spiel }: SpielKarteProps) {
+export function SpielKarte({ spiel, href }: SpielKarteProps) {
   const t = useTranslations('wm')
   const tSpiel = useTranslations('spiel')
   const locale = useLocale()
@@ -28,7 +30,9 @@ export function SpielKarte({ spiel }: SpielKarteProps) {
     return date.toLocaleDateString(locale, { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' })
   }
 
-  return (
+  const resolvedHref = href ?? `/spiele/${spiel.id}`
+
+  const card = (
     <div
       className="rounded-xl overflow-hidden group transition-all duration-250 card-hover"
       style={{
@@ -124,5 +128,11 @@ export function SpielKarte({ spiel }: SpielKarteProps) {
         </span>
       </div>
     </div>
+  )
+
+  return (
+    <Link href={resolvedHref} className="block">
+      {card}
+    </Link>
   )
 }

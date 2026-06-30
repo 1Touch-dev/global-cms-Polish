@@ -18,6 +18,7 @@ async function fetchFromApi<T>(endpoint: string, options: FetchOptions = {}): Pr
   try {
     const res = await fetch(url.toString(), {
       next: { revalidate },
+      signal: AbortSignal.timeout(5000),
     })
 
     if (!res.ok) {

@@ -11,6 +11,7 @@ import {
 } from '@/lib/bialoCzerwoniApi'
 import type { ApiEvent, ApiFixture, ApiLineup, ApiResponse } from '@/types/api.types'
 import type { H2HVergleich, SpielEreignis, SpielStatistiken } from '@/types/spiel.types'
+import AffiliateMatchWidget from '@/components/affiliates/AffiliateMatchWidget'
 
 function toNumber(value: unknown) {
   if (typeof value === 'number') return value
@@ -153,6 +154,12 @@ export default async function MatchPage({ params }: { params: Promise<{ locale: 
       </Link>
 
       <div className="space-y-6">
+        <AffiliateMatchWidget
+          locale={locale}
+          homeTeam={spiel.team1.name}
+          awayTeam={spiel.team2.name}
+        />
+
         <FadeInSection>
           <SpielDetailTabs
             spiel={spiel}

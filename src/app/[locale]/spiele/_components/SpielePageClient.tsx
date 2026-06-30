@@ -6,7 +6,6 @@ import { SpielKarte } from '@/components/wm/SpielKarte'
 import { Activity, Clock, CheckCircle } from 'lucide-react'
 import { useState } from 'react'
 import { FadeInSection } from '@/components/ui/PageTransition'
-import { Link } from '@/i18n/routing'
 
 interface SpielePageProps {
   liveSpiele: Spiel[]
@@ -68,9 +67,7 @@ export default function SpielePageClient({ liveSpiele, upcomingSpiele, pastSpiel
         {currentSpiele.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {currentSpiele.map(spiel => (
-              <Link key={spiel.id} href={`/spiele/${spiel.id}`} className="block">
-                <SpielKarte spiel={spiel} />
-              </Link>
+              <SpielKarte key={spiel.id} spiel={spiel} />
             ))}
           </div>
         ) : (

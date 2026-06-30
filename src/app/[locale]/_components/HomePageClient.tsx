@@ -15,6 +15,8 @@ import { BcFeaturedCard } from '@/components/cms/BcFeaturedCard'
 import { BcArticleCard } from '@/components/cms/BcArticleCard'
 import type { BialoCzerwoniArticle } from '@/lib/bialoCzerwoniApi'
 import type { WorldCupMatchHeroData } from '@/lib/worldcupMatch'
+import AffiliateBannerFrame from '@/components/affiliates/AffiliateBannerFrame'
+import AffiliateOfferCard from '@/components/affiliates/AffiliateOfferCard'
 
 type HeroMatch = WorldCupMatchHeroData & {
   kickoffLabel: string
@@ -192,6 +194,14 @@ export default function HomePageClient({ aktuelleSpiele, scorers, gruppen, cmsAr
             </div>
           </Card>
         </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-10">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
+          <AffiliateBannerFrame locale={locale} />
+          <AffiliateOfferCard locale={locale} compact />
+        </div>
+        <AffiliateBannerFrame locale={locale} variant="horizontalWide" className="mt-6" />
       </section>
 
       <FadeInSection>
