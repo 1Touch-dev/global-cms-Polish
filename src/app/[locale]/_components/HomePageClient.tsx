@@ -189,7 +189,7 @@ export default function HomePageClient({ aktuelleSpiele, scorers, gruppen, cmsAr
               <p>{nextWorldCupMatch.venue}</p>
               <p>{nextWorldCupMatch.location}</p>
             </div>
-            <div className="mt-5">
+            <div className="mt-5 flex justify-center">
               <CountdownTimer targetDate={nextWorldCupMatch.date} />
             </div>
           </Card>

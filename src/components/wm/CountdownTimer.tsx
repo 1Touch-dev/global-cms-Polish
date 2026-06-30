@@ -66,9 +66,9 @@ export function CountdownTimer({ targetDate = '2026-07-19T20:00:00Z' }: Countdow
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+    <div className="flex flex-wrap items-end justify-center gap-3 sm:gap-4">
       {units.map((unit, idx) => (
-        <div key={unit.label} className="flex items-center gap-3 sm:gap-4">
+        <div key={unit.label} className="flex items-end gap-3 sm:gap-4">
           <div className="flex flex-col items-center">
             <div className="min-w-[60px] rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-center shadow-[var(--shadow-soft)] sm:min-w-[80px] sm:px-5 sm:py-3">
               <span className="font-[var(--font-display)] text-3xl tabular-nums text-[var(--accent)] sm:text-5xl">
@@ -80,7 +80,7 @@ export function CountdownTimer({ targetDate = '2026-07-19T20:00:00Z' }: Countdow
             </span>
           </div>
           {idx < units.length - 1 && (
-            <span className="-mt-5 text-2xl font-bold text-[var(--accent)] sm:text-4xl">:</span>
+            <span className="mb-6 text-2xl font-bold text-[var(--accent)] sm:text-4xl sm:mb-7">:</span>
           )}
         </div>
       ))}
