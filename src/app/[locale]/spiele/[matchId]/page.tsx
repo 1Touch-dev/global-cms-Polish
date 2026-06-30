@@ -1,4 +1,3 @@
-import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { Link } from '@/i18n/routing'
 import { FadeInSection } from '@/components/ui/PageTransition'
@@ -133,7 +132,20 @@ export default async function MatchPage({ params }: { params: Promise<{ locale: 
   const data = await getMatchPageData(matchId)
   const fixture = ((data.match as ApiResponse<ApiFixture[]> | null)?.response || [])[0]
 
-  if (!fixture) notFound()
+  if (!fixture) {
+    // Match data unavailable (API timeout or unknown ID) — show a friendly message instead of 404
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-16 text-center">
+        <Link href="/spiele" className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-[var(--accent)]">
+          <ArrowLeft className="h-4 w-4" />
+          Wszystkie mecze
+        </Link>
+        <p className="mt-8 text-lg text-[var(--text-muted)]">
+          {locale === 'pl' ? 'Dane meczu są chwilowo niedostępne. Spróbuj ponownie.' : 'Match data temporarily unavailable. Please try again.'}
+        </p>
+      </div>
+    )
+  }
 
   const spiel = mapFixtureToSpiel(fixture)
   const statistiken = mapStatistics(data.stats)

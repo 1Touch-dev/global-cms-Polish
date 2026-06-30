@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useLocale, useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/routing'
 import {
   ArrowLeft, Shield, Trophy, Users, TrendingUp, Swords, BarChart3, MapPin, Calendar, Maximize2
@@ -33,41 +33,21 @@ interface ApiTeamData {
   gruppe: string
 }
 
-interface MockTeam {
-  id: number
-  name: string
-  kurzname: string
-  flagge: string
-  wappen?: string
-  punkte: number
-  spiele: number
-  siege: number
-  unentschieden: number
-  niederlagen: number
-  tore: number
-  gegentore: number
-  tordifferenz: number
-  form: string[]
-  gruppe: string
-  gruppenTeams: any[]
-}
-
 interface Props {
   teamId: string
-  apiData: ApiTeamData | null
-  mockTeam: MockTeam | null
+  apiData: ApiTeamData
+  mockTeam: null
 }
 
-export default function TeamDetailClient({ teamId, apiData, mockTeam }: Props) {
+export default function TeamDetailClient({ apiData }: Props) {
   const t = useTranslations('teams')
-  const locale = useLocale()
   const [activeTab, setActiveTab] = useState<TabType>('kader')
 
-  const teamName = apiData?.team?.name || mockTeam?.name || '—'
-  const teamFlagge = apiData?.team?.flagge || mockTeam?.flagge || ''
-  const teamWappen = apiData?.team?.wappen || mockTeam?.wappen
-  const teamKurzname = apiData?.team?.kurzname || mockTeam?.kurzname || ''
-  const gruppe = apiData?.gruppe || mockTeam?.gruppe || ''
+  const teamName = apiData?.team?.name || '—'
+  const teamFlagge = apiData?.team?.flagge || ''
+  const teamWappen = apiData?.team?.wappen
+  const teamKurzname = apiData?.team?.kurzname || ''
+  const gruppe = apiData?.gruppe || apiData?.team?.gruppe || ''
 
   const stadion = apiData?.team?.stadion
   const stadionBild = apiData?.team?.stadionBild
@@ -75,17 +55,17 @@ export default function TeamDetailClient({ teamId, apiData, mockTeam }: Props) {
   const gruendung = apiData?.team?.gruendung
 
   const standing = apiData?.standingRow
-  const punkte = standing?.points ?? mockTeam?.punkte ?? 0
-  const spiele = standing?.all?.played ?? mockTeam?.spiele ?? 0
-  const siege = standing?.all?.win ?? mockTeam?.siege ?? 0
-  const unentschieden = standing?.all?.draw ?? mockTeam?.unentschieden ?? 0
-  const niederlagen = standing?.all?.lose ?? mockTeam?.niederlagen ?? 0
-  const tore = standing?.all?.goals?.for ?? mockTeam?.tore ?? 0
-  const gegentore = standing?.all?.goals?.against ?? mockTeam?.gegentore ?? 0
-  const tordifferenz = standing?.goalsDiff ?? mockTeam?.tordifferenz ?? (tore - gegentore)
+  const punkte = standing?.points ?? 0
+  const spiele = standing?.all?.played ?? 0
+  const siege = standing?.all?.win ?? 0
+  const unentschieden = standing?.all?.draw ?? 0
+  const niederlagen = standing?.all?.lose ?? 0
+  const tore = standing?.all?.goals?.for ?? 0
+  const gegentore = standing?.all?.goals?.against ?? 0
+  const tordifferenz = standing?.goalsDiff ?? (tore - gegentore)
   const form: string[] = standing?.form
     ? standing.form.split('').map((f: string) => f === 'W' ? 'S' : f === 'D' ? 'U' : 'N')
-    : mockTeam?.form || []
+    : []
 
   const apiFixtures = apiData?.spiele || []
   const kader = apiData?.kader || {}

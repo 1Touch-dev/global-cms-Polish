@@ -6,6 +6,7 @@ import {
   getStandings,
   getTeams,
   getLiveMatches,
+  getLiveMatchesByLeague,
   getMatchDetails,
   getLineups,
   getMatchEvents,
@@ -33,7 +34,7 @@ export async function getHomepageData() {
     getFixtures({ league: WM_LEAGUE_ID, season: WM_SEASON, next: '6' }),
     getTopScorers({ league: WM_LEAGUE_ID, season: WM_SEASON }),
     getStandings({ league: WM_LEAGUE_ID, season: WM_SEASON }),
-    getLiveMatches(),
+    getLiveMatchesByLeague(WM_LEAGUE_ID),
   ])
 
   const fixtures = fixturesRes as ApiResponse<ApiFixture[]> | null
@@ -71,7 +72,7 @@ export async function getSpielePageData() {
   const [upcomingRes, pastRes, liveRes] = await Promise.all([
     getFixtures({ league: WM_LEAGUE_ID, season: WM_SEASON, next: '10' }),
     getFixtures({ league: WM_LEAGUE_ID, season: WM_SEASON, last: '10' }),
-    getLiveMatches(),
+    getLiveMatchesByLeague(WM_LEAGUE_ID),
   ])
 
   const upcoming = upcomingRes as ApiResponse<ApiFixture[]> | null
@@ -238,18 +239,19 @@ export async function getSpielerPageData() {
 
 // --- Single Match Data ---
 export async function getMatchPageData(matchId: string) {
-  const matchRes = await getMatchDetails(matchId)
+  const [matchRes, eventsRes, statsRes, lineupsRes] = await Promise.all([
+    getMatchDetails(matchId),
+    getMatchEvents(matchId),
+    getFixtureStats(matchId),
+    getLineups(matchId),
+  ])
+
   const matchFixture = (matchRes as any)?.response?.[0]
   const h2hKey = matchFixture?.teams?.home?.id && matchFixture?.teams?.away?.id
     ? `${matchFixture.teams.home.id}-${matchFixture.teams.away.id}`
     : null
 
-  const [eventsRes, statsRes, lineupsRes, h2hRes] = await Promise.all([
-    getMatchEvents(matchId),
-    getFixtureStats(matchId),
-    getLineups(matchId),
-    h2hKey ? getHeadToHead(h2hKey) : Promise.resolve(null),
-  ])
+  const h2hRes = h2hKey ? await getHeadToHead(h2hKey) : null
 
   return {
     match: matchRes,
@@ -440,7 +442,7 @@ export async function getWMErgebnisseData() {
 // --- WM 2026 Spielplan (All / Upcoming Fixtures) ---
 export async function getWMSpielplanData() {
   const [liveRes, upcomingRes, pastRes] = await Promise.all([
-    getLiveMatches(),
+    getLiveMatchesByLeague(WM_LEAGUE_ID),
     getFixtures({ league: WM_LEAGUE_ID, season: WM_SEASON, next: '60' }),
     getFixtures({ league: WM_LEAGUE_ID, season: WM_SEASON, last: '20' }),
   ])

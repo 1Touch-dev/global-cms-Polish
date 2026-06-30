@@ -4,18 +4,21 @@ import { useTranslations, useLocale } from 'next-intl'
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { Search, Users, User, MapPin } from 'lucide-react'
 import { Link } from '@/i18n/routing'
-import { MOCK_GRUPPEN } from '@/lib/mock-data'
-import { WM_STADIEN } from '@/lib/stadien-data'
 
-const allTeams = MOCK_GRUPPEN.flatMap(g => g.teams.map(t => ({ ...t, gruppe: g.name })))
+interface ApiTeam {
+  id: number
+  name: string
+  kurzname: string
+  flagge: string
+  gruppe?: string
+}
 
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value)
-  useEffect(() => {
-    const handler = setTimeout(() => setDebouncedValue(value), delay)
-    return () => clearTimeout(handler)
-  }, [value, delay])
-  return debouncedValue
+interface ApiStadion {
+  id: string
+  name: string
+  stadt: string
+  land: string
+  kapazitaet: number
 }
 
 interface ApiPlayer {
@@ -26,6 +29,15 @@ interface ApiPlayer {
   photo?: string
 }
 
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value)
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedValue(value), delay)
+    return () => clearTimeout(handler)
+  }, [value, delay])
+  return debouncedValue
+}
+
 export default function SuchePage() {
   const t = useTranslations('suche')
   const tNav = useTranslations('nav')
@@ -33,6 +45,9 @@ export default function SuchePage() {
   const [query, setQuery] = useState('')
   const debouncedQuery = useDebounce(query, 400)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const [allTeams, setAllTeams] = useState<ApiTeam[]>([])
+  const [allStadien, setAllStadien] = useState<ApiStadion[]>([])
   const [apiPlayers, setApiPlayers] = useState<ApiPlayer[]>([])
   const [loadingPlayers, setLoadingPlayers] = useState(false)
 
@@ -40,6 +55,32 @@ export default function SuchePage() {
     inputRef.current?.focus()
   }, [])
 
+  // Load teams and stadiums once on mount
+  useEffect(() => {
+    fetch('/api/teams')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        const response: any[] = data?.response || (Array.isArray(data) ? data : [])
+        const teams: ApiTeam[] = response.map((item: any) => ({
+          id: item.team?.id ?? item.id,
+          name: item.team?.name ?? item.name ?? '',
+          kurzname: item.team?.code ?? item.kurzname ?? '',
+          flagge: item.team?.logo ?? item.flagge ?? '',
+          gruppe: item.gruppe ?? '',
+        })).filter(t => t.id && t.name)
+        setAllTeams(teams)
+      })
+      .catch(() => {})
+
+    fetch('/api/stadien')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (Array.isArray(data)) setAllStadien(data)
+      })
+      .catch(() => {})
+  }, [])
+
+  // Fetch players when query is long enough
   useEffect(() => {
     if (debouncedQuery.length < 3) {
       setApiPlayers([])
@@ -65,12 +106,18 @@ export default function SuchePage() {
   const results = useMemo(() => {
     if (debouncedQuery.length < 2) return null
     const q = debouncedQuery.toLowerCase()
-    const teams = allTeams.filter(team => team.name.toLowerCase().includes(q) || team.kurzname.toLowerCase().includes(q))
-    const stadiums = WM_STADIEN.filter(s => s.name.toLowerCase().includes(q) || s.stadt.toLowerCase().includes(q))
+    const teams = allTeams.filter(
+      team => team.name.toLowerCase().includes(q) || team.kurzname.toLowerCase().includes(q)
+    )
+    const stadiums = allStadien.filter(
+      s => s.name.toLowerCase().includes(q) || s.stadt.toLowerCase().includes(q)
+    )
     return { teams, players: apiPlayers, stadiums }
-  }, [debouncedQuery, apiPlayers])
+  }, [debouncedQuery, apiPlayers, allTeams, allStadien])
 
-  const totalResults = results ? results.teams.length + results.players.length + results.stadiums.length : 0
+  const totalResults = results
+    ? results.teams.length + results.players.length + results.stadiums.length
+    : 0
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
@@ -101,7 +148,9 @@ export default function SuchePage() {
       {results ? (
         <div className="space-y-6">
           <p className="text-(--color-text-muted) text-sm">
-            {loadingPlayers ? t('laden') : t('ergebnisse', { count: totalResults, query: debouncedQuery })}
+            {loadingPlayers
+              ? t('laden')
+              : t('ergebnisse', { count: totalResults, query: debouncedQuery })}
           </p>
 
           {results.teams.length > 0 && (
@@ -113,10 +162,18 @@ export default function SuchePage() {
                 {results.teams.map(team => (
                   <Link key={team.id} href={`/teams/${team.id}`}>
                     <div className="flex items-center gap-3 p-3 bg-[var(--color-grau)] rounded-lg border border-(--color-border) hover:border-[var(--color-aka)] transition-colors">
-                      <span className="text-xl">{team.flagge}</span>
+                      {team.flagge && team.flagge.startsWith('http') ? (
+                        <img src={team.flagge} alt={team.name} className="w-6 h-6 object-contain" />
+                      ) : (
+                        <span className="text-xl">{team.flagge}</span>
+                      )}
                       <div>
                         <p className="text-(--color-text-primary) font-medium text-sm">{team.name}</p>
-                        <p className="text-(--color-text-muted) text-xs">{t('gruppe', { name: team.gruppe })}</p>
+                        {team.gruppe && (
+                          <p className="text-(--color-text-muted) text-xs">
+                            {t('gruppe', { name: team.gruppe })}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </Link>
@@ -135,7 +192,11 @@ export default function SuchePage() {
                   <Link key={player.id} href={`/spieler/${player.id}`}>
                     <div className="flex items-center gap-3 p-3 bg-[var(--color-grau)] rounded-lg border border-(--color-border) hover:border-[var(--color-aka)] transition-colors">
                       {player.photo ? (
-                        <img src={player.photo} alt={player.name} className="w-8 h-8 rounded-full object-cover border border-(--color-border)" />
+                        <img
+                          src={player.photo}
+                          alt={player.name}
+                          className="w-8 h-8 rounded-full object-cover border border-(--color-border)"
+                        />
                       ) : (
                         <div className="w-8 h-8 rounded-full bg-(--color-surface-2) flex items-center justify-center text-xs font-bold text-[var(--color-aka)]">
                           {player.name[0]}
@@ -143,7 +204,10 @@ export default function SuchePage() {
                       )}
                       <div>
                         <p className="text-(--color-text-primary) font-medium text-sm">{player.name}</p>
-                        <p className="text-(--color-text-muted) text-xs">{player.team}{player.position ? ` • ${player.position}` : ''}</p>
+                        <p className="text-(--color-text-muted) text-xs">
+                          {player.team}
+                          {player.position ? ` • ${player.position}` : ''}
+                        </p>
                       </div>
                     </div>
                   </Link>
@@ -159,11 +223,17 @@ export default function SuchePage() {
               </h2>
               <div className="space-y-2">
                 {results.stadiums.map(stadion => (
-                  <div key={stadion.id} className="flex items-center gap-3 p-3 bg-[var(--color-grau)] rounded-lg border border-(--color-border)">
+                  <div
+                    key={stadion.id}
+                    className="flex items-center gap-3 p-3 bg-[var(--color-grau)] rounded-lg border border-(--color-border)"
+                  >
                     <MapPin className="w-4 h-4 text-[var(--color-aka)]" />
                     <div>
                       <p className="text-(--color-text-primary) font-medium text-sm">{stadion.name}</p>
-                      <p className="text-(--color-text-muted) text-xs">{stadion.stadt}, {stadion.land} • {stadion.kapazitaet.toLocaleString(locale)} {t('stadien')}</p>
+                      <p className="text-(--color-text-muted) text-xs">
+                        {stadion.stadt}, {stadion.land} •{' '}
+                        {stadion.kapazitaet.toLocaleString(locale)} {t('stadien')}
+                      </p>
                     </div>
                   </div>
                 ))}

@@ -1,10 +1,8 @@
 import { getWMBracketData } from '@/lib/serverData'
 import { KnockoutBracket } from '@/components/wm/KnockoutBracket'
-import { MOCK_KO_SPIELE } from '@/lib/mock-data'
 
 export default async function BracketPage() {
-  const apiKOSpiele = await getWMBracketData()
-  const koSpiele = apiKOSpiele.length > 0 ? apiKOSpiele : MOCK_KO_SPIELE
+  const koSpiele = await getWMBracketData()
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">

@@ -14,11 +14,14 @@ interface CountdownTimerProps {
   targetDate?: string
 }
 
-export function CountdownTimer({ targetDate = '2026-06-11T19:00:00Z' }: CountdownTimerProps) {
+export function CountdownTimer({ targetDate = '2026-07-19T20:00:00Z' }: CountdownTimerProps) {
   const t = useTranslations('wm')
+  const [mounted, setMounted] = useState(false)
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ tage: 0, stunden: 0, minuten: 0, sekunden: 0 })
+  const [isInPast, setIsInPast] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
     const countdownTarget = new Date(targetDate)
 
     const calculate = () => {
@@ -27,9 +30,11 @@ export function CountdownTimer({ targetDate = '2026-06-11T19:00:00Z' }: Countdow
 
       if (diff <= 0) {
         setTimeLeft({ tage: 0, stunden: 0, minuten: 0, sekunden: 0 })
+        setIsInPast(true)
         return
       }
 
+      setIsInPast(false)
       setTimeLeft({
         tage: Math.floor(diff / (1000 * 60 * 60 * 24)),
         stunden: Math.floor((diff / (1000 * 60 * 60)) % 24),
@@ -49,6 +54,16 @@ export function CountdownTimer({ targetDate = '2026-06-11T19:00:00Z' }: Countdow
     { value: timeLeft.minuten, label: t('minuten') },
     { value: timeLeft.sekunden, label: t('sekunden') },
   ]
+
+  if (!mounted) return null
+
+  if (isInPast) {
+    return (
+      <p className="text-sm font-semibold text-[var(--accent)]">
+        {t('live') ?? 'LIVE'}
+      </p>
+    )
+  }
 
   return (
     <div className="flex flex-wrap items-center gap-3 sm:gap-4">

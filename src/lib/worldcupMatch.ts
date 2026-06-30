@@ -3,7 +3,7 @@ import { getFixtures } from './footballApi'
 
 const WM_LEAGUE_ID = process.env.WM_LEAGUE_ID || '1'
 const WM_SEASON = process.env.WM_SEASON || '2026'
-const FALLBACK_DATE = '2026-06-11T19:00:00Z'
+const FALLBACK_DATE = '2026-07-19T20:00:00Z'
 
 export interface WorldCupMatchHeroData {
   id: number

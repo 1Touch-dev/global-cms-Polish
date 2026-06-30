@@ -18,7 +18,7 @@ async function fetchFromApi<T>(endpoint: string, options: FetchOptions = {}): Pr
   try {
     const res = await fetch(url.toString(), {
       next: { revalidate },
-      signal: AbortSignal.timeout(5000),
+    signal: AbortSignal.timeout(15000),
     })
 
     if (!res.ok) {
@@ -75,6 +75,11 @@ export async function getFixtures(params: {
 // --- Live Matches ---
 export async function getLiveMatches() {
   return fetchFromApi<any>('/live', { revalidate: 30 })
+}
+
+// --- Live Matches filtered to a specific league ---
+export async function getLiveMatchesByLeague(leagueId: string) {
+  return fetchFromApi<any>('/live', { params: { league: leagueId }, revalidate: 30 })
 }
 
 // --- Match Details ---
