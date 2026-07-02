@@ -1,0 +1,37 @@
+# Biało-Czerwoni | Matchday Arena
+
+> Polish football portal covering the FIFA World Cup 2026, live match scores, team profiles, player statistics, and football news — with a focus on the Polish national team.
+
+## About
+Biało-Czerwoni (Matchday Arena) is a Polish-language football news and data portal available in Polish and English. The site provides live scores, real-time match fixtures, group standings, and knockout brackets for the FIFA World Cup 2026 (USA, Canada, Mexico). Content covers all 48 participating teams, top scorers, league tables from Europe's top five leagues, and original sports journalism. Data is sourced from api-sports.io and updated continuously during the tournament.
+
+## Key Sections
+- [Mistrzostwa Świata 2026](/pl/ms-2026): FIFA World Cup 2026 hub — groups, schedule, knockout bracket
+- [Grupy MS 2026](/pl/ms-2026/grupy): Group standings for all 12 groups (A–L)
+- [Terminarz MS 2026](/pl/ms-2026/terminarz): Full match schedule with venues and kick-off times
+- [Faza Pucharowa](/pl/ms-2026/faza-pucharowa): Knockout bracket from Round of 16 to Final
+- [Mecze](/pl/spiele): Live and upcoming football fixtures across all competitions
+- [Drużyny](/pl/teams): Team profiles for all 48 World Cup 2026 nations
+- [Zawodnicy](/pl/spieler): Player profiles and tournament statistics
+- [Strzelcy](/pl/torschuetzen): Top scorers and Golden Boot race
+- [Statystyki](/pl/statistiken): Goals, assists, cards, and possession data
+- [Stadiony](/pl/stadien): Interactive map of all 16 World Cup 2026 stadiums
+- [Ligi](/pl/ligen): Standings and results from Bundesliga, Champions League, Premier League, La Liga, Serie A, Ligue 1
+- [Newsy](/pl/news): Latest football news and analysis (Polish editorial team)
+- [Typy Meczowe](/pl/vorhersage): Match predictions for World Cup 2026 fixtures
+- [Reprezentacja](/pl/reprezentacja): Poland national team coverage
+
+## English Versions
+All major sections are available in English at /en/ — e.g. [World Cup 2026](/en/wm-2026), [Teams](/en/teams), [Matches](/en/spiele), [News](/en/news).
+
+## Content Policy
+This site publishes original Polish sports journalism alongside data-driven match coverage sourced from api-sports.io. News articles are written by the Biało-Czerwoni editorial team and updated throughout the day. Match data and statistics are refreshed in real time during live fixtures and re-validated every 60 seconds.
+
+## Technical
+- Site URL: https://bialoczerwoni.live
+- Sitemap: https://bialoczerwoni.live/sitemap.xml
+- Structured data: JSON-LD (NewsArticle, SportsEvent, SportsTeam, Organization) on all relevant pages
+
+## Contact
+https://bialoczerwoni.live
+Instagram: https://www.instagram.com/bialoczerwon/

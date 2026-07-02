@@ -75,6 +75,12 @@ export default function HomePageClient({ aktuelleSpiele, scorers, gruppen, cmsAr
     <div className="min-h-screen">
       <section className="relative overflow-hidden px-4 py-16 md:py-24">
         <div className="mx-auto max-w-7xl">
+          {/* sr-only summary for AI engine extraction */}
+          <p className="sr-only">
+            {isEnglish
+              ? 'FIFA World Cup 2026 features 48 participating teams, 104 matches, 16 stadiums across the United States, Canada, and Mexico. The tournament runs from June 11 to July 19, 2026.'
+              : 'Mistrzostwa Świata FIFA 2026 obejmują 48 drużyn uczestniczących, 104 mecze i 16 stadionów w Stanach Zjednoczonych, Kanadzie i Meksyku. Turniej odbywa się od 11 czerwca do 19 lipca 2026.'}
+          </p>
           <div className="grid items-center gap-8 lg:grid-cols-[1.15fr_0.85fr]">
             <div className="space-y-8">
               <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-semibold text-[var(--text-muted)] shadow-[var(--shadow-soft)]">
@@ -101,6 +107,7 @@ export default function HomePageClient({ aktuelleSpiele, scorers, gruppen, cmsAr
                       <p className="text-xl text-[var(--text-main)]">{stat.value}</p>
                       <p className="text-xs text-[var(--text-muted)]">{stat.label}</p>
                     </div>
+                    <span className="sr-only">{stat.value} {stat.label}</span>
                   </Card>
                 ))}
               </div>

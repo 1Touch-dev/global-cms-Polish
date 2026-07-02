@@ -9,8 +9,10 @@ import {
   fetchBialoCzerwoniArticlesMentioningTeams,
 } from '@/lib/bialoCzerwoniApi'
 import type { ApiEvent, ApiFixture, ApiLineup, ApiResponse } from '@/types/api.types'
-import type { H2HVergleich, SpielEreignis, SpielStatistiken } from '@/types/spiel.types'
+import type { H2HVergleich, SpielEreignis, SpielStatistiken, SpielStatus } from '@/types/spiel.types'
 import AffiliateMatchWidget from '@/components/affiliates/AffiliateMatchWidget'
+import { MatchJsonLd } from '@/components/seo/JsonLd'
+import { SITE_URL } from '@/lib/metadata'
 
 function toNumber(value: unknown) {
   if (typeof value === 'number') return value
@@ -72,6 +74,13 @@ function mapEvents(payload: unknown): SpielEreignis[] {
       details: event.assist?.name ? `Asysta: ${event.assist.name}` : event.detail || undefined,
     } satisfies SpielEreignis]
   })
+}
+
+function spelStatusToEventStatus(status: SpielStatus): 'EventScheduled' | 'EventLive' | 'EventCompleted' | 'EventCancelled' {
+  if (status === 'Beendet') return 'EventCompleted'
+  if (status === 'Live' || status === 'Halbzeit') return 'EventLive'
+  if (status === 'Verschoben') return 'EventCancelled'
+  return 'EventScheduled'
 }
 
 function mapHeadToHead(payload: unknown, team1Name: string, team2Name: string): H2HVergleich | null {
@@ -160,6 +169,19 @@ export default async function MatchPage({ params }: { params: Promise<{ locale: 
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
+      <MatchJsonLd
+        homeTeam={spiel.team1.name}
+        awayTeam={spiel.team2.name}
+        homeTeamLogo={spiel.team1.wappen}
+        awayTeamLogo={spiel.team2.wappen}
+        startDate={fixture.fixture.date}
+        status={spelStatusToEventStatus(spiel.status)}
+        venueName={spiel.stadion}
+        venueCity={spiel.stadt}
+        competition={fixture.league.name}
+        url={`${SITE_URL}/${locale}/spiele/${matchId}`}
+        locale={locale}
+      />
       <Link href="/spiele" className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-[var(--accent)]">
         <ArrowLeft className="h-4 w-4" />
         Wszystkie mecze

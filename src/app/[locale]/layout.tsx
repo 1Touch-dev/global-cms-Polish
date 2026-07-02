@@ -14,6 +14,7 @@ import { ThemeProvider } from '@/components/ui/ThemeProvider'
 import { ScrollToTop } from '@/components/ui/ScrollToTop'
 import { AppShell } from '@/components/layout/AppShell'
 import { SITE_URL } from '@/lib/metadata'
+import { OrganizationJsonLd } from '@/components/seo/JsonLd'
 import '../globals.css'
 
 export const metadata: Metadata = {
@@ -84,6 +85,7 @@ export default async function LocaleLayout({
       <head>
         <meta name="theme-color" content="#0b6623" />
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <OrganizationJsonLd />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-YVFJ334HLP"
           strategy="afterInteractive"
