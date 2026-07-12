@@ -401,6 +401,27 @@
     "heute": "Opublikowano dziś",
     "live_updates": "Aktualizacje na żywo",
     "trending": "Na czasie:"
+  },
+  "faq": {
+    "heading": "Często zadawane pytania",
+    "wm_q1": "Kiedy startują Mistrzostwa Świata 2026?",
+    "wm_a1": "Mistrzostwa Świata FIFA 2026 rozpoczynają się 11 czerwca 2026 roku i trwają do 19 lipca 2026. Turniej odbywa się w USA, Kanadzie i Meksyku.",
+    "wm_q2": "Ile drużyn bierze udział w MŚ 2026?",
+    "wm_a2": "W turnieju bierze udział 48 drużyn narodowych — jest to największy format w historii Mistrzostw Świata FIFA. Drużyny rywalizują w 12 grupach po 4 drużyny.",
+    "wm_q3": "Ile meczów rozegra się na MŚ 2026?",
+    "wm_a3": "Na Mistrzostwach Świata 2026 rozegrane zostanie łącznie 104 mecze na 16 stadionach w trzech krajach.",
+    "wm_q4": "Gdzie oglądać mecze MŚ 2026 w Polsce?",
+    "wm_a4": "Mecze MŚ 2026 transmituje w Polsce TVP (TVP1, TVP2, TVP Sport) oraz Canal+. Wyniki na żywo i statystyki dostępne są na Biało-Czerwoni.",
+    "wm_q5": "Kiedy gra reprezentacja Polski na MŚ 2026?",
+    "wm_a5": "Terminarze meczów reprezentacji Polski na MŚ 2026 znajdziesz w zakładce Terminarz. Polska zagra w fazie grupowej od 11 do 26 czerwca 2026.",
+    "match_q1": "O której godzinie rozpoczyna się mecz?",
+    "match_a1": "Dokładna godzina i data meczu widoczna jest w nagłówku strony. Wszystkie czasy podawane są zgodnie z Twoją lokalną strefą czasową.",
+    "match_q2": "Gdzie oglądać ten mecz na żywo?",
+    "match_a2": "Mecze MŚ 2026 transmituje w Polsce TVP (TVP1, TVP2, TVP Sport) oraz Canal+. Sprawdź ramówkę u swojego dostawcy telewizji.",
+    "match_q3": "Gdzie odbywa się ten mecz?",
+    "match_a3": "Stadion i miasto, w którym rozgrywany jest mecz, widoczne są w informacjach o spotkaniu. Wszystkie mecze rozgrywane są w jednym z 16 stadionów w USA, Kanadzie lub Meksyku.",
+    "match_q4": "Jak sprawdzić skład i statystyki?",
+    "match_a4": "Kliknij zakładki Składy i Statystyki na stronie meczu, aby zobaczyć wyjściowe jedenastki i dane statystyczne z bieżącego spotkania."
   }
 }
 

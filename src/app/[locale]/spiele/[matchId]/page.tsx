@@ -13,6 +13,8 @@ import type { H2HVergleich, SpielEreignis, SpielStatistiken, SpielStatus } from 
 import AffiliateMatchWidget from '@/components/affiliates/AffiliateMatchWidget'
 import { MatchJsonLd } from '@/components/seo/JsonLd'
 import { SITE_URL } from '@/lib/metadata'
+import { MatchFaqSection } from './_components/MatchFaqSection'
+import { BreadcrumbSchema } from '@/components/schema/BreadcrumbSchema'
 
 function toNumber(value: unknown) {
   if (typeof value === 'number') return value
@@ -182,6 +184,13 @@ export default async function MatchPage({ params }: { params: Promise<{ locale: 
         url={`${SITE_URL}/${locale}/spiele/${matchId}`}
         locale={locale}
       />
+      <BreadcrumbSchema
+        crumbs={[
+          { name: locale === 'pl' ? 'Strona główna' : 'Home', url: `${SITE_URL}/${locale}` },
+          { name: locale === 'pl' ? 'Mecze' : 'Matches', url: `${SITE_URL}/${locale}/spiele` },
+          { name: `${spiel.team1.name} vs ${spiel.team2.name}`, url: `${SITE_URL}/${locale}/spiele/${matchId}` },
+        ]}
+      />
       <Link href="/spiele" className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-[var(--accent)]">
         <ArrowLeft className="h-4 w-4" />
         Wszystkie mecze
@@ -212,6 +221,7 @@ export default async function MatchPage({ params }: { params: Promise<{ locale: 
           </FadeInSection>
         )}
       </div>
+      <MatchFaqSection locale={locale} />
     </div>
   )
 }

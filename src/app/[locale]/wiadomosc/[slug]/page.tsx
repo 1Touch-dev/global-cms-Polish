@@ -19,6 +19,26 @@ import { Card } from '@/components/ui/Card'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import { ArticleJsonLd } from '@/components/seo/JsonLd'
 import { SITE_URL } from '@/lib/metadata'
+import { VideoObjectSchema } from '@/components/schema/VideoObjectSchema'
+import { generateSeoMetadata } from '@/lib/seo/generateSeoMetadata'
+import { BreadcrumbSchema } from '@/components/schema/BreadcrumbSchema'
+
+/** Extract YouTube embed URL from a raw YouTube watch/share URL */
+function toYoutubeEmbed(url?: string): string | undefined {
+  if (!url) return undefined
+  try {
+    const parsed = new URL(url)
+    if (parsed.hostname.includes('youtu.be')) {
+      const id = parsed.pathname.replace('/', '')
+      return id ? `https://www.youtube.com/embed/${id}` : undefined
+    }
+    if (parsed.hostname.includes('youtube.com')) {
+      const id = parsed.searchParams.get('v') || parsed.pathname.split('/').pop()
+      return id ? `https://www.youtube.com/embed/${id}` : undefined
+    }
+  } catch { /* no-op */ }
+  return undefined
+}
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>
@@ -32,21 +52,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolved = resolveBcArticle(article, locale)
   const thumb = bcThumbnail(article)
   const image = article.seo?.image || thumb
-  const canonical = `${SITE_URL}/${locale}/wiadomosc/${slug}`
 
   return {
-    title: `${resolved.seoTitle} | Biało-Czerwoni`,
-    description: resolved.seoDescription,
+    ...generateSeoMetadata({
+      title: resolved.seoTitle,
+      description: resolved.seoDescription,
+      locale,
+      path: `/wiadomosc/${slug}`,
+      image,
+      type: 'article',
+      publishedTime: resolved.publishedAt,
+      modifiedTime: article.updatedAt,
+    }),
+    // Preserve article-specific extra fields not covered by the shared utility
     keywords: article.seo?.keywords,
     authors: [{ name: resolved.authorName }],
-    metadataBase: new URL(SITE_URL),
-    alternates: {
-      canonical,
-      languages: {
-        pl: `${SITE_URL}/pl/wiadomosc/${slug}`,
-        en: `${SITE_URL}/en/wiadomosc/${slug}`,
-      },
-    },
     openGraph: {
       title: resolved.seoTitle,
       description: resolved.seoDescription,
@@ -57,12 +77,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       authors: [resolved.authorName],
       tags: resolved.tags,
       ...(image && { images: [{ url: image, alt: resolved.title }] }),
-    },
-    twitter: {
-      card: image ? 'summary_large_image' : 'summary',
-      title: resolved.seoTitle,
-      description: resolved.seoDescription,
-      ...(image && { images: [image] }),
     },
   }
 }
@@ -96,6 +110,23 @@ export default async function WiadomoscPage({ params }: Props) {
         tags={resolved.tags}
         locale={locale}
       />
+      <BreadcrumbSchema
+        crumbs={[
+          { name: locale === 'pl' ? 'Strona główna' : 'Home', url: `${SITE_URL}/${locale}` },
+          { name: locale === 'pl' ? 'Aktualności' : 'News', url: `${SITE_URL}/${locale}/news` },
+          { name: resolved.title, url: canonicalUrl },
+        ]}
+      />
+      {resolved.videoUrl && (
+        <VideoObjectSchema
+          name={resolved.title}
+          description={resolved.seoDescription}
+          thumbnailUrl={thumb}
+          uploadDate={resolved.publishedAt}
+          embedUrl={toYoutubeEmbed(resolved.videoUrl)}
+          contentUrl={toYoutubeEmbed(resolved.videoUrl) ? undefined : resolved.videoUrl}
+        />
+      )}
       <Link
         href="/ms-2026"
         className="mb-8 inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm text-[var(--text-muted)] transition hover:border-[var(--accent)] hover:text-[var(--text-main)]"

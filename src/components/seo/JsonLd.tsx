@@ -152,6 +152,7 @@ export function ArticleJsonLd({
     },
     publisher: {
       '@type': 'NewsMediaOrganization',
+      '@id': `${SITE_URL}/#organization`,
       name: 'Biało-Czerwoni',
       url: SITE_URL,
       logo: {

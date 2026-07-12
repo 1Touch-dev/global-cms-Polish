@@ -5,6 +5,7 @@ import type { Spiel } from '@/types/spiel.types'
 import type { Team } from '@/types/team.types'
 import WM2026PageClient from './_components/WM2026PageClient'
 import { getPageMetadata } from '@/lib/metadata'
+import { WmFaqSection } from './_components/WmFaqSection'
 
 export async function generateMetadata({
   params,
@@ -19,7 +20,8 @@ export const revalidate = 60
 
 export const dynamic = 'force-dynamic'
 
-export default async function WM2026Page() {
+export default async function WM2026Page({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
   let gruppen: Gruppe[] = []
   let spiele: Spiel[] = []
   let teamsData: { teams: Team[] } = { teams: [] }
@@ -43,5 +45,10 @@ export default async function WM2026Page() {
     groups: gruppen.length,
   }
 
-  return <WM2026PageClient gruppen={gruppen} stats={stats} />
+  return (
+    <>
+      <WM2026PageClient gruppen={gruppen} stats={stats} />
+      <WmFaqSection locale={locale} />
+    </>
+  )
 }

@@ -401,5 +401,26 @@
     "heute": "Published today",
     "live_updates": "Live Updates",
     "trending": "Trending:"
+  },
+  "faq": {
+    "heading": "Frequently Asked Questions",
+    "wm_q1": "When does the 2026 World Cup start?",
+    "wm_a1": "The FIFA World Cup 2026 begins on June 11, 2026 and runs until July 19, 2026. The tournament is hosted across the United States, Canada, and Mexico.",
+    "wm_q2": "How many teams are in the 2026 World Cup?",
+    "wm_a2": "48 national teams participate — the largest format in FIFA World Cup history. Teams compete in 12 groups of 4.",
+    "wm_q3": "How many matches will be played at the 2026 World Cup?",
+    "wm_a3": "A total of 104 matches will be played across 16 stadiums in three countries.",
+    "wm_q4": "Where can I watch the 2026 World Cup?",
+    "wm_a4": "Broadcast rights vary by country. Check your local sports broadcaster for the full schedule. Live scores and stats are available on Biało-Czerwoni.",
+    "wm_q5": "When does Poland play at the 2026 World Cup?",
+    "wm_a5": "Poland's full match schedule for the 2026 World Cup is available in the Schedule section. The group stage runs from June 11 to June 26, 2026.",
+    "match_q1": "What time does this match start?",
+    "match_a1": "The exact kick-off time and date are shown in the match header. All times are displayed in your local time zone.",
+    "match_q2": "Where can I watch this match live?",
+    "match_a2": "Broadcast rights vary by country — check your local sports broadcaster for coverage details. Live scores and stats are tracked here in real time.",
+    "match_q3": "Where is this match being played?",
+    "match_a3": "The stadium and city are shown in the match information section. All matches are played at one of 16 official World Cup 2026 stadiums in the USA, Canada, or Mexico.",
+    "match_q4": "How can I see lineups and match statistics?",
+    "match_a4": "Click the Lineups and Statistics tabs on the match page to view starting elevens and live match data."
   }
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
+import { generateSeoMetadata, SITE_URL } from '@/lib/seo/generateSeoMetadata'
 
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://bialoczerwoni.live'
+export { SITE_URL }
 
 type PageKey =
   | 'home'
@@ -20,7 +21,7 @@ type PageKey =
   | 'suche'
   | 'news'
 
-const metaData: Record<PageKey, { pl: Metadata; en: Metadata }> = {
+const metaData: Record<PageKey, { pl: { title: string; description: string }; en: { title: string; description: string } }> = {
   home: {
     pl: {
       title: 'Mistrzostwa Świata 2026 | Matchday Arena',
@@ -186,31 +187,11 @@ const metaData: Record<PageKey, { pl: Metadata; en: Metadata }> = {
 export function getPageMetadata(page: PageKey, locale: string = 'pl', path = '/'): Metadata {
   const lang = locale === 'en' ? 'en' : 'pl'
   const base = metaData[page]?.[lang] || metaData[page]?.pl
-  const canonical = `${SITE_URL}/${locale}${path === '/' ? '' : path}`
 
-  return {
-    ...base,
-    metadataBase: new URL(SITE_URL),
-    alternates: {
-      canonical,
-      languages: {
-        pl: `${SITE_URL}/pl${path === '/' ? '' : path}`,
-        en: `${SITE_URL}/en${path === '/' ? '' : path}`,
-      },
-    },
-    openGraph: {
-      title: base.title as string,
-      description: base.description as string,
-      url: canonical,
-      siteName: 'Biało-Czerwoni | Matchday Arena',
-      locale: locale === 'en' ? 'en_US' : 'pl_PL',
-      alternateLocale: locale === 'en' ? 'pl_PL' : 'en_US',
-      type: 'website',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: base.title as string,
-      description: base.description as string,
-    },
-  }
+  return generateSeoMetadata({
+    title: base.title,
+    description: base.description,
+    locale,
+    path,
+  })
 }
