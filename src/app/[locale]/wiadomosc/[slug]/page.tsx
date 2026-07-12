@@ -2,8 +2,6 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, Clock, Tag, User } from 'lucide-react'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
 import {
   fetchBialoCzerwoniArticleBySlug,
   fetchBialoCzerwoniRelatedArticles,
@@ -17,27 +15,27 @@ import { BcArticleSocials } from '@/components/cms/BcArticleSocials'
 import { Badge } from '@/components/ui/Badge'
 import { Card } from '@/components/ui/Card'
 import { SectionHeader } from '@/components/ui/SectionHeader'
-import { ArticleJsonLd } from '@/components/seo/JsonLd'
 import { SITE_URL } from '@/lib/metadata'
-import { VideoObjectSchema } from '@/components/schema/VideoObjectSchema'
 import { generateSeoMetadata } from '@/lib/seo/generateSeoMetadata'
-import { BreadcrumbSchema } from '@/components/schema/BreadcrumbSchema'
 
-/** Extract YouTube embed URL from a raw YouTube watch/share URL */
-function toYoutubeEmbed(url?: string): string | undefined {
-  if (!url) return undefined
-  try {
-    const parsed = new URL(url)
-    if (parsed.hostname.includes('youtu.be')) {
-      const id = parsed.pathname.replace('/', '')
-      return id ? `https://www.youtube.com/embed/${id}` : undefined
-    }
-    if (parsed.hostname.includes('youtube.com')) {
-      const id = parsed.searchParams.get('v') || parsed.pathname.split('/').pop()
-      return id ? `https://www.youtube.com/embed/${id}` : undefined
-    }
-  } catch { /* no-op */ }
-  return undefined
+const ARTICLE_PATH_PREFIX = '/wiadomosc'
+
+/** Demote any <h1> tags inside CMS-provided HTML to <h2> so the page has exactly one <h1>. */
+function demoteBodyH1(html: string): string {
+  return html
+    .replace(/<h1(\s[^>]*)?>/gi, '<h2$1>')
+    .replace(/<\/h1>/gi, '</h2>')
+}
+
+/** Locale-appropriate heading for the FAQ section. */
+function faqHeadingForDialect(dialectCode?: string): string {
+  const lang = (dialectCode ?? '').toLowerCase()
+  if (lang.startsWith('pl')) return 'Często zadawane pytania'
+  if (lang.startsWith('de')) return 'Häufig gestellte Fragen'
+  if (lang.startsWith('es')) return 'Preguntas frecuentes'
+  if (lang.startsWith('pt')) return 'Perguntas frequentes'
+  if (lang.startsWith('fr')) return 'Questions fréquemment posées'
+  return 'Frequently Asked Questions'
 }
 
 interface Props {
@@ -51,32 +49,43 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const resolved = resolveBcArticle(article, locale)
   const thumb = bcThumbnail(article)
-  const image = article.seo?.image || thumb
+  const image = article.seo?.image || article.imageUrls?.[0] || thumb
+
+  // Use CMS seo.meta_title / seo.meta_description when available, fall back to resolved
+  const metaTitle = article.seo?.meta_title || resolved.seoTitle
+  const metaDescription = article.seo?.meta_description || resolved.seoDescription
+  const canonicalPath = `${ARTICLE_PATH_PREFIX}/${slug}`
+  const publishedTime = article.scheduledTime || article.publishedAt || article.createdAt
 
   return {
     ...generateSeoMetadata({
-      title: resolved.seoTitle,
-      description: resolved.seoDescription,
+      title: metaTitle,
+      description: metaDescription,
       locale,
-      path: `/wiadomosc/${slug}`,
+      path: canonicalPath,
       image,
       type: 'article',
-      publishedTime: resolved.publishedAt,
+      publishedTime,
       modifiedTime: article.updatedAt,
     }),
-    // Preserve article-specific extra fields not covered by the shared utility
     keywords: article.seo?.keywords,
     authors: [{ name: resolved.authorName }],
     openGraph: {
-      title: resolved.seoTitle,
-      description: resolved.seoDescription,
+      title: metaTitle,
+      description: metaDescription,
       locale: locale === 'en' ? 'en_US' : 'pl_PL',
       type: 'article',
-      publishedTime: resolved.publishedAt,
+      publishedTime,
       modifiedTime: article.updatedAt,
       authors: [resolved.authorName],
       tags: resolved.tags,
       ...(image && { images: [{ url: image, alt: resolved.title }] }),
+    },
+    twitter: {
+      card: image ? 'summary_large_image' : 'summary',
+      title: metaTitle,
+      description: metaDescription,
+      ...(image && { images: [image] }),
     },
   }
 }
@@ -91,42 +100,38 @@ export default async function WiadomoscPage({ params }: Props) {
 
   const resolved = resolveBcArticle(article, locale)
   const thumb = bcThumbnail(article)
-  const canonicalUrl = `${SITE_URL}/${locale}/wiadomosc/${article.slug}`
+  const canonicalUrl = `${SITE_URL}/${locale}${ARTICLE_PATH_PREFIX}/${article.slug}`
   const related = await fetchBialoCzerwoniRelatedArticles(article, { limit: 3 })
-
-  // Extra images beyond the cover thumbnail
   const extraImages = (article.imageUrls || []).filter((url) => url && url !== thumb)
+
+  // Build the JSON-LD @graph: merge CMS-provided seoJsonLd with a BreadcrumbList node
+  const breadcrumbNode = {
+    '@type': 'BreadcrumbList',
+    '@id': `${canonicalUrl}#breadcrumb`,
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: locale === 'pl' ? 'Strona główna' : 'Home', item: `${SITE_URL}/${locale}` },
+      { '@type': 'ListItem', position: 2, name: locale === 'pl' ? 'Aktualności' : 'News', item: `${SITE_URL}/${locale}/wiadomosc` },
+      { '@type': 'ListItem', position: 3, name: resolved.title, item: canonicalUrl },
+    ],
+  }
+
+  const cmsNodes: Record<string, unknown>[] = article.seoJsonLd ?? []
+  // Merge CMS nodes + breadcrumb into one @graph (dedupe by @type is implicit — CMS already has NewsArticle/FAQPage)
+  const graphNodes: Record<string, unknown>[] = [...cmsNodes, breadcrumbNode]
+
+  const jsonLdPayload =
+    graphNodes.length === 1
+      ? { '@context': 'https://schema.org', ...graphNodes[0] }
+      : { '@context': 'https://schema.org', '@graph': graphNodes }
 
   return (
     <article className="mx-auto max-w-4xl px-4 py-10 lg:px-6">
-      <ArticleJsonLd
-        title={resolved.title}
-        description={resolved.seoDescription}
-        url={canonicalUrl}
-        imageUrl={thumb}
-        publishedAt={resolved.publishedAt}
-        updatedAt={article.updatedAt}
-        authorName={resolved.authorName}
-        tags={resolved.tags}
-        locale={locale}
+      {/* Merged JSON-LD: CMS seoJsonLd + BreadcrumbList */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdPayload) }}
       />
-      <BreadcrumbSchema
-        crumbs={[
-          { name: locale === 'pl' ? 'Strona główna' : 'Home', url: `${SITE_URL}/${locale}` },
-          { name: locale === 'pl' ? 'Aktualności' : 'News', url: `${SITE_URL}/${locale}/news` },
-          { name: resolved.title, url: canonicalUrl },
-        ]}
-      />
-      {resolved.videoUrl && (
-        <VideoObjectSchema
-          name={resolved.title}
-          description={resolved.seoDescription}
-          thumbnailUrl={thumb}
-          uploadDate={resolved.publishedAt}
-          embedUrl={toYoutubeEmbed(resolved.videoUrl)}
-          contentUrl={toYoutubeEmbed(resolved.videoUrl) ? undefined : resolved.videoUrl}
-        />
-      )}
+
       <Link
         href="/ms-2026"
         className="mb-8 inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm text-[var(--text-muted)] transition hover:border-[var(--accent)] hover:text-[var(--text-main)]"
@@ -142,6 +147,7 @@ export default async function WiadomoscPage({ params }: Props) {
           ))}
         </div>
 
+        {/* Exactly ONE <h1> on the page, equal to article.title */}
         <h1 className="text-3xl font-bold leading-tight text-[var(--text-main)] md:text-4xl lg:text-5xl">
           {resolved.title}
         </h1>
@@ -155,7 +161,10 @@ export default async function WiadomoscPage({ params }: Props) {
         <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--text-muted)]">
           <span className="inline-flex items-center gap-1.5">
             <Clock className="h-4 w-4" />
-            {formatDatePl(resolved.publishedAt, { day: '2-digit', month: 'long', year: 'numeric' })}
+            {formatDatePl(
+              article.scheduledTime || resolved.publishedAt,
+              { day: '2-digit', month: 'long', year: 'numeric' },
+            )}
           </span>
           <span className="inline-flex items-center gap-1.5 font-semibold text-[var(--accent)]">
             <User className="h-4 w-4" />
@@ -174,54 +183,46 @@ export default async function WiadomoscPage({ params }: Props) {
         </div>
       )}
 
+      {/* Body: prefer editorJsContent (if the field ever exists), otherwise sanitized HTML with H1 demotion */}
       <Card className="prose prose-invert max-w-none p-6 md:p-8">
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          components={{
-            img: ({ src, alt }) => (
-              <span className="block my-6">
-                <img
-                  src={src}
-                  alt={alt ?? ''}
-                  className="w-full rounded-xl object-cover"
-                />
-              </span>
-            ),
-            a: ({ href, children }) => (
-              <a
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[var(--accent)] underline underline-offset-2 hover:no-underline"
-              >
-                {children}
-              </a>
-            ),
-            h2: ({ children }) => (
-              <h2 className="text-xl font-bold mt-8 mb-3 text-[var(--text-main)]">{children}</h2>
-            ),
-            h3: ({ children }) => (
-              <h3 className="text-lg font-semibold mt-6 mb-2 text-[var(--text-main)]">{children}</h3>
-            ),
-            p: ({ children }) => (
-              <p className="mb-4 leading-relaxed text-[var(--text-muted)]">{children}</p>
-            ),
-            ul: ({ children }) => (
-              <ul className="list-disc pl-5 mb-4 space-y-1 text-[var(--text-muted)]">{children}</ul>
-            ),
-            ol: ({ children }) => (
-              <ol className="list-decimal pl-5 mb-4 space-y-1 text-[var(--text-muted)]">{children}</ol>
-            ),
-            blockquote: ({ children }) => (
-              <blockquote className="border-l-4 border-[var(--accent)] pl-4 italic text-[var(--text-muted)] my-4">
-                {children}
-              </blockquote>
-            ),
-          }}
-        >
-          {resolved.content}
-        </ReactMarkdown>
+        <div
+          className="
+            [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-8 [&_h2]:mb-3 [&_h2]:text-[var(--text-main)]
+            [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-6 [&_h3]:mb-2 [&_h3]:text-[var(--text-main)]
+            [&_p]:mb-4 [&_p]:leading-relaxed [&_p]:text-[var(--text-muted)]
+            [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-4 [&_ul]:space-y-1 [&_ul]:text-[var(--text-muted)]
+            [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-4 [&_ol]:space-y-1 [&_ol]:text-[var(--text-muted)]
+            [&_blockquote]:border-l-4 [&_blockquote]:border-[var(--accent)] [&_blockquote]:pl-4
+            [&_blockquote]:italic [&_blockquote]:text-[var(--text-muted)] [&_blockquote]:my-4
+            [&_a]:text-[var(--accent)] [&_a]:underline [&_a]:underline-offset-2
+            [&_img]:w-full [&_img]:rounded-xl [&_img]:object-cover [&_img]:my-6
+          "
+          dangerouslySetInnerHTML={{ __html: demoteBodyH1(resolved.content) }}
+        />
       </Card>
+
+      {/* FAQ section — rendered only when CMS provides faq[] data */}
+      {article.faq && article.faq.length > 0 && (
+        <section
+          aria-labelledby="faq-heading"
+          className="mt-10 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6"
+        >
+          <h2
+            id="faq-heading"
+            className="mb-5 text-xl font-bold text-[var(--text-main)]"
+          >
+            {faqHeadingForDialect(article.dialectCode || (locale === 'pl' ? 'pl-PL' : 'en-US'))}
+          </h2>
+          <dl className="space-y-4">
+            {article.faq.map((item) => (
+              <div key={item.question} className="rounded-xl bg-[var(--bg)] p-4">
+                <dt className="font-semibold text-[var(--text-main)]">{item.question}</dt>
+                <dd className="mt-1 text-[var(--text-muted)]">{item.answer}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
 
       {extraImages.length > 0 && (
         <section className="mt-8">

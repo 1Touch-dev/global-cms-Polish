@@ -58,6 +58,15 @@ export interface BialoCzerwoniSeo {
   description?: string
   keywords?: string[]
   image?: string
+  // CMS-extended SEO fields
+  meta_title?: string
+  meta_description?: string
+}
+
+/** FAQ item as sent by the CMS (field: faq[]) */
+export interface BcFaqItem {
+  question: string
+  answer: string
 }
 
 export interface BialoCzerwoniArticleTranslation {
@@ -81,7 +90,7 @@ export interface BialoCzerwoniArticle {
   slug: string
   summary: string
   description: string
-  content: string // HTML
+  content: string // HTML — render via dangerouslySetInnerHTML with H1 demotion
   category: string[]
   tags?: string[]
   countryName?: string[]
@@ -91,11 +100,17 @@ export interface BialoCzerwoniArticle {
   endpointAssignments?: { name: string }[]
   author?: string | BialoCzerwoniAuthor
   authorName?: string
+  // Scheduling / timestamps
+  scheduledTime?: string
   publishedAt?: string
+  createdAt: string
+  updatedAt: string
+  // Video
   videoUrl?: string
   videoURL?: string
   videoUrls?: string[]
   youtubeUrl?: string
+  // Social
   twitterUrl?: string
   xUrl?: string
   tweetUrl?: string
@@ -104,14 +119,22 @@ export interface BialoCzerwoniArticle {
     x?: string
     facebook?: string
   }
+  // SEO
   seo?: BialoCzerwoniSeo
   seoTitle?: string
   seoDescription?: string
   metaTitle?: string
   metaDescription?: string
+  // i18n / dialects
   translatedVersions?: BialoCzerwoniArticleTranslation[]
-  createdAt: string
-  updatedAt: string
+  dialectCode?: string
+  schemaType?: string
+  // CMS-generated JSON-LD graph nodes (FAQPage, NewsArticle, VideoObject…)
+  seoJsonLd?: Record<string, unknown>[]
+  // FAQ data (visible + schema)
+  faq?: BcFaqItem[]
+  // Internal links for cross-linking
+  internalLinks?: { text: string; url: string }[]
 }
 
 export interface BcResolvedArticle {
@@ -220,6 +243,8 @@ async function fetchBialoCzerwoniSiteArticles(
 ): Promise<BcListResponse | null> {
   const params: Record<string, string | number | boolean> = {
     targetWebsite: BIALO_CZERWONI_WEBSITE,
+    includeSeoJsonLd: true,
+    publishableOnly: true,
     page,
     limit,
     sort,
@@ -262,6 +287,8 @@ export async function fetchBialoCzerwoniArticlesByEndpoint(
 ): Promise<BcListResponse | null> {
   const params: Record<string, string | number | boolean> = {
     targetWebsite: BIALO_CZERWONI_WEBSITE,
+    includeSeoJsonLd: true,
+    publishableOnly: true,
     endpoint,
     filterByEndpoint: true,
     page,
@@ -329,19 +356,22 @@ export async function fetchBialoCzerwoniTransfers(
   return fetchBialoCzerwoniArticlesByEndpoint(BC_ENDPOINTS.Transfers, { page, limit })
 }
 
-/** Fetch a single article by slug. */
+/** Fetch a single article by slug. Requests includeSeoJsonLd so CMS sends the full JSON-LD graph. */
 export async function fetchBialoCzerwoniArticleBySlug(
   slug: string,
   locale?: string,
 ): Promise<BialoCzerwoniArticle | null> {
   const targeted = normalizeBcArticle(await bcFetch<unknown>(
     `/ai-articles/slug/${encodeURIComponent(slug)}`,
-    { targetWebsite: BIALO_CZERWONI_WEBSITE },
+    { targetWebsite: BIALO_CZERWONI_WEBSITE, includeSeoJsonLd: true },
   ))
   if (targeted) return translateBcArticleFallback(targeted, locale, true)
 
   return translateBcArticleFallback(
-    normalizeBcArticle(await bcFetch<unknown>(`/ai-articles/slug/${encodeURIComponent(slug)}`, {})),
+    normalizeBcArticle(await bcFetch<unknown>(
+      `/ai-articles/slug/${encodeURIComponent(slug)}`,
+      { includeSeoJsonLd: true },
+    )),
     locale,
     true,
   )

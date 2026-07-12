@@ -89,7 +89,7 @@ export default async function LocaleLayout({
           rel="alternate"
           type="application/rss+xml"
           title="Biało-Czerwoni — Aktualności"
-          href={`/${locale}/feed.xml`}
+          href={`${process.env.NEXT_PUBLIC_CMS_API_URL || 'https://api.golazopro.com/api'}/seo/rss/bialoczerwoni.live`}
         />
         <OrganizationSchema />
         <Script
