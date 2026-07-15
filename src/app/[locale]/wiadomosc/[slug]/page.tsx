@@ -27,15 +27,13 @@ function demoteBodyH1(html: string): string {
     .replace(/<\/h1>/gi, '</h2>')
 }
 
-/** Locale-appropriate heading for the FAQ section. */
-function faqHeadingForDialect(dialectCode?: string): string {
-  const lang = (dialectCode ?? '').toLowerCase()
-  if (lang.startsWith('pl')) return 'Często zadawane pytania'
-  if (lang.startsWith('de')) return 'Häufig gestellte Fragen'
-  if (lang.startsWith('es')) return 'Preguntas frecuentes'
-  if (lang.startsWith('pt')) return 'Perguntas frequentes'
-  if (lang.startsWith('fr')) return 'Questions fréquemment posées'
-  return 'Frequently Asked Questions'
+/** Convert markdown image syntax ![alt](url) to <img> tags, preserving surrounding text. */
+function processMarkdownImages(html: string): string {
+  return html.replace(
+    /!\[([^\]]*)\]\((https?:\/\/[^)]+)\)/g,
+    (_, alt: string, src: string) =>
+      `<img src="${src}" alt="${alt || ''}" class="w-full rounded-xl object-cover my-6" loading="lazy" />`,
+  )
 }
 
 interface Props {
@@ -184,45 +182,12 @@ export default async function WiadomoscPage({ params }: Props) {
       )}
 
       {/* Body: prefer editorJsContent (if the field ever exists), otherwise sanitized HTML with H1 demotion */}
-      <Card className="prose prose-invert max-w-none p-6 md:p-8">
+      <Card className="p-6 md:p-8">
         <div
-          className="
-            [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-8 [&_h2]:mb-3 [&_h2]:text-[var(--text-main)]
-            [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-6 [&_h3]:mb-2 [&_h3]:text-[var(--text-main)]
-            [&_p]:mb-4 [&_p]:leading-relaxed [&_p]:text-[var(--text-muted)]
-            [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-4 [&_ul]:space-y-1 [&_ul]:text-[var(--text-muted)]
-            [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-4 [&_ol]:space-y-1 [&_ol]:text-[var(--text-muted)]
-            [&_blockquote]:border-l-4 [&_blockquote]:border-[var(--accent)] [&_blockquote]:pl-4
-            [&_blockquote]:italic [&_blockquote]:text-[var(--text-muted)] [&_blockquote]:my-4
-            [&_a]:text-[var(--accent)] [&_a]:underline [&_a]:underline-offset-2
-            [&_img]:w-full [&_img]:rounded-xl [&_img]:object-cover [&_img]:my-6
-          "
-          dangerouslySetInnerHTML={{ __html: demoteBodyH1(resolved.content) }}
+          className="article-content"
+          dangerouslySetInnerHTML={{ __html: processMarkdownImages(demoteBodyH1(resolved.content)) }}
         />
       </Card>
-
-      {/* FAQ section — rendered only when CMS provides faq[] data */}
-      {article.faq && article.faq.length > 0 && (
-        <section
-          aria-labelledby="faq-heading"
-          className="mt-10 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6"
-        >
-          <h2
-            id="faq-heading"
-            className="mb-5 text-xl font-bold text-[var(--text-main)]"
-          >
-            {faqHeadingForDialect(article.dialectCode || (locale === 'pl' ? 'pl-PL' : 'en-US'))}
-          </h2>
-          <dl className="space-y-4">
-            {article.faq.map((item) => (
-              <div key={item.question} className="rounded-xl bg-[var(--bg)] p-4">
-                <dt className="font-semibold text-[var(--text-main)]">{item.question}</dt>
-                <dd className="mt-1 text-[var(--text-muted)]">{item.answer}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-      )}
 
       {extraImages.length > 0 && (
         <section className="mt-8">

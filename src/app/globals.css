@@ -406,6 +406,7 @@ select {
   color: var(--text-main);
   line-height: 1.8;
   font-size: 1rem;
+  font-family: var(--font-body), system-ui, sans-serif;
 }
 
 .article-content h1,
@@ -415,7 +416,9 @@ select {
   color: var(--text-main);
   font-weight: 700;
   margin: 1.75em 0 0.6em;
-  line-height: 1.25;
+  line-height: 1.3;
+  font-family: var(--font-body), system-ui, sans-serif;
+  letter-spacing: -0.01em;
 }
 
 .article-content h1 { font-size: 1.75rem; }
