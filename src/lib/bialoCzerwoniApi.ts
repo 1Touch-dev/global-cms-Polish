@@ -655,3 +655,62 @@ export function formatDatePl(
     return dateString
   }
 }
+
+// ─── Featured Banner ──────────────────────────────────────────────────────────
+
+export interface BialoCzerwoniBanner {
+  _id: string
+  website: string
+  type: string
+  htmlContent?: string
+  title?: string
+  tags?: string[]
+  isActive?: boolean
+  status?: string
+}
+
+export interface BialoCzerwoniBannersResponse {
+  banner?: BialoCzerwoniBanner
+  banners: BialoCzerwoniBanner[]
+}
+
+export async function fetchBialoCzerwoniPublicBanners(): Promise<BialoCzerwoniBannersResponse | null> {
+  try {
+    const res = await fetch(
+      `${CMS_BASE}/banners/public/${BIALO_CZERWONI_WEBSITE}`,
+      { headers: { Accept: 'application/json' }, next: { revalidate: 60 } },
+    )
+    if (!res.ok) {
+      console.error(`[BialoCzerwoni CMS] banners → ${res.status}`)
+      return null
+    }
+    return (await res.json()) as BialoCzerwoniBannersResponse
+  } catch (err) {
+    console.error('[BialoCzerwoni CMS] banners error:', (err as Error).message)
+    return null
+  }
+}
+
+export function rewriteBialoCzerwoniBannerHtml(html: string, locale = 'pl'): string {
+  const lang = locale === 'en' ? 'en' : 'pl'
+  return html
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(
+      /href=(["'])(?:https?:\/\/(?:www\.)?bialoczerwoni\.live)?(?:\/[a-z-]{2,5})?\/news\/([^"'#?]+)\1/gi,
+      `href="/${lang}/news/$2"`,
+    )
+    .replace(
+      /(<img[^>]+src=)(["'])(?!https?:\/\/|data:|\/\/)(\/[^"'\s>]*)\2/gi,
+      (_, tag, q, path) =>
+        `${tag}${q}https://bialoczerwoni.live/${path.replace(/^\//, '')}${q}`,
+    )
+    .replace(
+      /src=(["'])https?:\/\/(?:s\.yimg\.com|media\.zenfs\.com|via\.placeholder\.com)[^"']*\1/gi,
+      'src=$1data:,$1',
+    )
+    .replace(
+      /<img(?![^>]*onerror)([^>]*?)>/gi,
+      `<img$1 onerror="var a=this.closest('.img-area');this.parentNode&&this.parentNode.removeChild(this);if(a){a.style.setProperty('background','linear-gradient(135deg,#0b6623 0%,#16a34a 100%)','important');a.style.setProperty('min-height','180px','important');}">`,
+    )
+    .replace(/class="card"/gi, 'class="card" style="border-radius:14px;overflow:hidden;"')
+}

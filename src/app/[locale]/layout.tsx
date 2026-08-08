@@ -46,6 +46,7 @@ const displayFont = Bebas_Neue({
   variable: '--font-display',
   weight: '400',
   display: 'swap',
+  preload: false,
 })
 
 const bodyFont = Inter({
@@ -53,6 +54,7 @@ const bodyFont = Inter({
   variable: '--font-body',
   weight: ['400', '500', '600', '700'],
   display: 'swap',
+  preload: false,
 })
 
 export function generateStaticParams() {

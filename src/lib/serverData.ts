@@ -1,4 +1,4 @@
-import {
+﻿import {
   getFixtures,
   getTopScorers,
   getTopAssists,
@@ -27,14 +27,16 @@ import { Spieler } from '@/types/spieler.types'
 
 const WM_LEAGUE_ID = process.env.WM_LEAGUE_ID || '1'
 const WM_SEASON = process.env.WM_SEASON || '2026'
+const LOCAL_LEAGUE_ID = '106'
+const LOCAL_SEASON = '2024'
 
 // --- Homepage Data ---
 export async function getHomepageData() {
   const [fixturesRes, topScorersRes, standingsRes, liveRes] = await Promise.all([
-    getFixtures({ league: WM_LEAGUE_ID, season: WM_SEASON, next: '6' }),
-    getTopScorers({ league: WM_LEAGUE_ID, season: WM_SEASON }),
-    getStandings({ league: WM_LEAGUE_ID, season: WM_SEASON }),
-    getLiveMatchesByLeague(WM_LEAGUE_ID),
+    getFixtures({ league: LOCAL_LEAGUE_ID, season: LOCAL_SEASON, next: '6' }),
+    getTopScorers({ league: LOCAL_LEAGUE_ID, season: LOCAL_SEASON }),
+    getStandings({ league: LOCAL_LEAGUE_ID, season: LOCAL_SEASON }),
+    getLiveMatchesByLeague(LOCAL_LEAGUE_ID),
   ])
 
   const fixtures = fixturesRes as ApiResponse<ApiFixture[]> | null
@@ -70,9 +72,9 @@ export async function getHomepageData() {
 // --- Spiele Page Data ---
 export async function getSpielePageData() {
   const [upcomingRes, pastRes, liveRes] = await Promise.all([
-    getFixtures({ league: WM_LEAGUE_ID, season: WM_SEASON, next: '10' }),
-    getFixtures({ league: WM_LEAGUE_ID, season: WM_SEASON, last: '10' }),
-    getLiveMatchesByLeague(WM_LEAGUE_ID),
+    getFixtures({ league: LOCAL_LEAGUE_ID, season: LOCAL_SEASON, next: '10' }),
+    getFixtures({ league: LOCAL_LEAGUE_ID, season: LOCAL_SEASON, last: '10' }),
+    getLiveMatchesByLeague(LOCAL_LEAGUE_ID),
   ])
 
   const upcoming = upcomingRes as ApiResponse<ApiFixture[]> | null
@@ -89,9 +91,9 @@ export async function getSpielePageData() {
 // --- Teams Page Data ---
 export async function getTeamsPageData() {
   const [teamsRes, standingsRes, fixturesRes] = await Promise.all([
-    getTeams({ league: WM_LEAGUE_ID, season: WM_SEASON }),
-    getStandings({ league: WM_LEAGUE_ID, season: WM_SEASON }),
-    getFixtures({ league: WM_LEAGUE_ID, season: WM_SEASON, next: '80' }),
+    getTeams({ league: LOCAL_LEAGUE_ID, season: LOCAL_SEASON }),
+    getStandings({ league: LOCAL_LEAGUE_ID, season: LOCAL_SEASON }),
+    getFixtures({ league: LOCAL_LEAGUE_ID, season: LOCAL_SEASON, next: '80' }),
   ])
 
   const teamsData = teamsRes as ApiResponse<ApiTeamResponse[]> | null
@@ -158,7 +160,7 @@ export async function getTeamsPageData() {
 
 // --- Top Scorers Page Data ---
 export async function getTorschuetzenPageData() {
-  const res = await getTopScorers({ league: WM_LEAGUE_ID, season: WM_SEASON })
+  const res = await getTopScorers({ league: LOCAL_LEAGUE_ID, season: LOCAL_SEASON })
   const data = res as ApiResponse<ApiTopPlayer[]> | null
 
   const torschuetzen = (data?.response || []).map((p, i) => {
@@ -192,9 +194,9 @@ export async function getTorschuetzenPageData() {
 // --- Statistiken Page Data ---
 export async function getStatistikenPageData() {
   const [scorersRes, assistsRes, cardsRes] = await Promise.all([
-    getTopScorers({ league: WM_LEAGUE_ID, season: WM_SEASON }),
-    getTopAssists({ league: WM_LEAGUE_ID, season: WM_SEASON }),
-    getTopCards({ league: WM_LEAGUE_ID, season: WM_SEASON }),
+    getTopScorers({ league: LOCAL_LEAGUE_ID, season: LOCAL_SEASON }),
+    getTopAssists({ league: LOCAL_LEAGUE_ID, season: LOCAL_SEASON }),
+    getTopCards({ league: LOCAL_LEAGUE_ID, season: LOCAL_SEASON }),
   ])
 
   const scorers = scorersRes as ApiResponse<ApiTopPlayer[]> | null
@@ -229,7 +231,7 @@ export async function getStatistikenPageData() {
 
 // --- Spieler Page Data ---
 export async function getSpielerPageData() {
-  const res = await getTopScorers({ league: WM_LEAGUE_ID, season: WM_SEASON })
+  const res = await getTopScorers({ league: LOCAL_LEAGUE_ID, season: LOCAL_SEASON })
   const data = res as ApiResponse<ApiTopPlayer[]> | null
 
   const spieler: Spieler[] = (data?.response || []).slice(0, 20).map(mapTopPlayerToSpieler)
@@ -265,8 +267,8 @@ export async function getMatchPageData(matchId: string) {
 // --- Team Detail Data ---
 export async function getTeamDetailData(teamId: string) {
   const [teamRes, fixturesRes, squadRes] = await Promise.all([
-    getTeams({ team: teamId, season: WM_SEASON }),
-    getFixtures({ team: teamId, season: WM_SEASON, league: WM_LEAGUE_ID }),
+    getTeams({ team: teamId, season: LOCAL_SEASON }),
+    getFixtures({ team: teamId, season: LOCAL_SEASON, league: LOCAL_LEAGUE_ID }),
     getPlayerSquads(teamId),
   ])
 
@@ -281,7 +283,7 @@ export async function getTeamDetailData(teamId: string) {
 
 // --- Player Detail Data ---
 export async function getPlayerDetailData(playerId: string) {
-  const res = await getPlayerStatistics({ player: playerId, season: WM_SEASON, league: WM_LEAGUE_ID })
+  const res = await getPlayerStatistics({ player: playerId, season: LOCAL_SEASON, league: LOCAL_LEAGUE_ID })
   return res
 }
 
@@ -294,7 +296,7 @@ export const LIGA_CONFIG: Record<string, {
   zones: { typ: string; von: number; bis: number; farbe: string; label: string }[]
 }> = {
   'bundesliga': {
-    apiId: '78', season: '2024', name: 'Bundesliga', flag: '🇩🇪',
+    apiId: '78', season: '2024', name: 'Bundesliga', flag: 'ðŸ‡©ðŸ‡ª',
     zones: [
       { typ: 'meisterschaft', von: 1, bis: 1, farbe: 'rgba(255,204,0,0.15)', label: 'Meister' },
       { typ: 'champions_league', von: 2, bis: 4, farbe: 'rgba(0,80,200,0.15)', label: 'Champions League' },
@@ -305,7 +307,7 @@ export const LIGA_CONFIG: Record<string, {
     ],
   },
   'champions-league': {
-    apiId: '2', season: '2024', name: 'Champions League', flag: '🇪🇺',
+    apiId: '2', season: '2024', name: 'Champions League', flag: 'ðŸ‡ªðŸ‡º',
     zones: [
       { typ: 'meisterschaft', von: 1, bis: 8, farbe: 'rgba(0,80,200,0.15)', label: 'Achtelfinale direkt' },
       { typ: 'europa_league', von: 9, bis: 24, farbe: 'rgba(255,204,0,0.10)', label: 'Play-off' },
@@ -313,7 +315,7 @@ export const LIGA_CONFIG: Record<string, {
     ],
   },
   'premier-league': {
-    apiId: '39', season: '2024', name: 'Premier League', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+    apiId: '39', season: '2024', name: 'Premier League', flag: 'ðŸ´ó §ó ¢ó ¥ó ®ó §ó ¿',
     zones: [
       { typ: 'meisterschaft', von: 1, bis: 1, farbe: 'rgba(255,204,0,0.15)', label: 'Champion' },
       { typ: 'champions_league', von: 2, bis: 4, farbe: 'rgba(0,80,200,0.15)', label: 'Champions League' },
@@ -323,7 +325,7 @@ export const LIGA_CONFIG: Record<string, {
     ],
   },
   'la-liga': {
-    apiId: '140', season: '2024', name: 'La Liga', flag: '🇪🇸',
+    apiId: '140', season: '2024', name: 'La Liga', flag: 'ðŸ‡ªðŸ‡¸',
     zones: [
       { typ: 'meisterschaft', von: 1, bis: 1, farbe: 'rgba(255,204,0,0.15)', label: 'Meister' },
       { typ: 'champions_league', von: 2, bis: 4, farbe: 'rgba(0,80,200,0.15)', label: 'Champions League' },
@@ -332,7 +334,7 @@ export const LIGA_CONFIG: Record<string, {
     ],
   },
   'serie-a': {
-    apiId: '135', season: '2024', name: 'Serie A', flag: '🇮🇹',
+    apiId: '135', season: '2024', name: 'Serie A', flag: 'ðŸ‡®ðŸ‡¹',
     zones: [
       { typ: 'meisterschaft', von: 1, bis: 1, farbe: 'rgba(255,204,0,0.15)', label: 'Meister' },
       { typ: 'champions_league', von: 2, bis: 4, farbe: 'rgba(0,80,200,0.15)', label: 'Champions League' },
@@ -341,7 +343,7 @@ export const LIGA_CONFIG: Record<string, {
     ],
   },
   'ligue-1': {
-    apiId: '61', season: '2024', name: 'Ligue 1', flag: '🇫🇷',
+    apiId: '61', season: '2024', name: 'Ligue 1', flag: 'ðŸ‡«ðŸ‡·',
     zones: [
       { typ: 'meisterschaft', von: 1, bis: 1, farbe: 'rgba(255,204,0,0.15)', label: 'Meister' },
       { typ: 'champions_league', von: 2, bis: 3, farbe: 'rgba(0,80,200,0.15)', label: 'Champions League' },
@@ -512,13 +514,13 @@ export async function getWMVorhersageSpiele() {
 
 // --- Team Detail Page Data (real squad + fixtures + standing) ---
 export async function getTeamDetailPageData(teamId: string) {
-  const season = WM_SEASON
+  const season = LOCAL_SEASON
 
   const [teamRes, fixturesRes, squadRes, standingsRes] = await Promise.all([
     getTeams({ team: teamId, season }),
-    getFixtures({ team: teamId, season, league: WM_LEAGUE_ID }),
+    getFixtures({ team: teamId, season, league: LOCAL_LEAGUE_ID }),
     getPlayerSquads(teamId),
-    getStandings({ league: WM_LEAGUE_ID, season }),
+    getStandings({ league: LOCAL_LEAGUE_ID, season }),
   ])
 
   const teamData = teamRes as ApiResponse<ApiTeamResponse[]> | null

@@ -492,3 +492,8 @@ select {
 }
 
 .article-content td { color: var(--text-muted); }
+
+/* bc-banner-html structural layout */
+.bc-banner-html { display: flex; flex-direction: column; height: 100%; }
+.bc-banner-html .card { display: flex; flex-direction: column; height: 100%; }
+.bc-banner-html .body { flex: 1; display: flex; flex-direction: column; }
