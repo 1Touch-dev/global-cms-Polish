@@ -2,25 +2,19 @@
 
 import { useLocale, useTranslations } from 'next-intl'
 import { Link } from '@/i18n/routing'
-import { ArrowRight, CalendarDays, Trophy, Activity, Gauge, Sparkles } from 'lucide-react'
+import { ArrowRight, Sparkles } from 'lucide-react'
 import { FadeInSection } from '@/components/ui/PageTransition'
 import { Spiel } from '@/types/spiel.types'
 import { LiveMatchCard } from '@/components/layout/LiveMatchCard'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import { LeagueCard } from '@/components/layout/LeagueCard'
-import { CountdownTimer } from '@/components/wm/CountdownTimer'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { BcFeaturedCard } from '@/components/cms/BcFeaturedCard'
 import { BcArticleCard } from '@/components/cms/BcArticleCard'
 import type { BialoCzerwoniArticle } from '@/lib/bialoCzerwoniApi'
-import type { WorldCupMatchHeroData } from '@/lib/worldcupMatch'
 import AffiliateBannerFrame from '@/components/affiliates/AffiliateBannerFrame'
 import AffiliateOfferCard from '@/components/affiliates/AffiliateOfferCard'
-
-type HeroMatch = WorldCupMatchHeroData & {
-  kickoffLabel: string
-}
 
 interface HomePageProps {
   aktuelleSpiele: Spiel[]
@@ -47,10 +41,9 @@ interface HomePageProps {
     }[]
   }[]
   cmsArticles: BialoCzerwoniArticle[]
-  nextWorldCupMatch: HeroMatch
 }
 
-export default function HomePageClient({ aktuelleSpiele, scorers, gruppen, cmsArticles, nextWorldCupMatch }: HomePageProps) {
+export default function HomePageClient({ aktuelleSpiele, scorers, gruppen, cmsArticles }: HomePageProps) {
   const tHome = useTranslations('home')
   const locale = useLocale()
   const isEnglish = locale === 'en'
@@ -64,61 +57,40 @@ export default function HomePageClient({ aktuelleSpiele, scorers, gruppen, cmsAr
   const featuredArticle = cmsArticles[0]
   const restArticles = cmsArticles.slice(1, 7)
 
-  const heroStats = [
-    { value: '48', label: isEnglish ? 'Teams' : 'Drużyn', icon: Trophy },
-    { value: '104', label: isEnglish ? 'Matches' : 'Meczów', icon: Activity },
-    { value: '16', label: isEnglish ? 'Stadiums' : 'Stadionów', icon: CalendarDays },
-    { value: '39', label: isEnglish ? 'Days' : 'Dni', icon: Gauge },
-  ]
+  const nextMatch = aktuelleSpiele[0]
 
   return (
     <div className="min-h-screen">
       <section className="relative overflow-hidden px-4 py-16 md:py-24">
         <div className="mx-auto max-w-7xl">
-          {/* sr-only summary for AI engine extraction */}
           <p className="sr-only">
             {isEnglish
-              ? 'FIFA World Cup 2026 features 48 participating teams, 104 matches, 16 stadiums across the United States, Canada, and Mexico. The tournament runs from June 11 to July 19, 2026.'
-              : 'Mistrzostwa Świata FIFA 2026 obejmują 48 drużyn uczestniczących, 104 mecze i 16 stadionów w Stanach Zjednoczonych, Kanadzie i Meksyku. Turniej odbywa się od 11 czerwca do 19 lipca 2026.'}
+              ? 'Ekstraklasa 2025/26 — Polish Football Premier League. Live scores, standings and fixtures.'
+              : 'Ekstraklasa 2025/26 — Polska Ekstraklasa Piłki Nożnej. Wyniki na żywo, tabele i terminarz.'}
           </p>
           <div className="grid items-center gap-8 lg:grid-cols-[1.15fr_0.85fr]">
             <div className="space-y-8">
               <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs font-semibold text-[var(--text-muted)] shadow-[var(--shadow-soft)]">
-                <Sparkles className="h-4 w-4 text-[var(--accent)]" />
+                <Sparkles className="h-4 w-4" style={{ color: '#DC143C' }} />
                 Matchday Arena
               </div>
 
               <div className="space-y-4">
                 <h1 className="max-w-3xl text-5xl leading-none text-[var(--text-main)] md:text-7xl">
-                  {isEnglish ? 'World Cup 2026 in a new matchday frame' : 'Mistrzostwa Świata 2026 w nowej oprawie'}
+                  {isEnglish ? 'Ekstraklasa 2025/26' : 'Ekstraklasa 2025/26'}
                 </h1>
                 <p className="max-w-2xl text-base leading-7 text-[var(--text-muted)] md:text-lg">
-                  {isEnglish
-                    ? 'A premium football dashboard with live scores, standings, league shortcuts and newsroom coverage.'
-                    : 'Premium piłkarski dashboard z wynikami na żywo, tabelami, skrótami ligowymi i newsroomem.'}
+                  {isEnglish ? 'Polish Football Premier League' : 'Polska Ekstraklasa Piłki Nożnej'}
                 </p>
               </div>
 
               <div className="flex flex-wrap gap-3">
-                {heroStats.map((stat) => (
-                  <Card key={stat.label} className="flex min-w-[160px] items-center gap-3 px-4 py-3">
-                    <stat.icon className="h-5 w-5 text-[var(--accent)]" />
-                    <div>
-                      <p className="text-xl text-[var(--text-main)]">{stat.value}</p>
-                      <p className="text-xs text-[var(--text-muted)]">{stat.label}</p>
-                    </div>
-                    <span className="sr-only">{stat.value} {stat.label}</span>
-                  </Card>
-                ))}
-              </div>
-
-              <div className="flex flex-wrap gap-3">
-                <Button href="/wm-2026" variant="primary">
-                  {isEnglish ? 'Open tournament hub' : 'Otwórz centrum turnieju'}
+                <Button href="/ligen/ekstraklasa" variant="primary" style={{ backgroundColor: '#DC143C', borderColor: '#DC143C' }}>
+                  {isEnglish ? 'Standings' : 'Tabela'}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
-                <Button href="/wm-2026/spielplan" variant="secondary">
-                  {isEnglish ? 'View schedule' : 'Zobacz terminarz'}
+                <Button href="/spiele" variant="secondary">
+                  {isEnglish ? 'Fixtures' : 'Terminarz'}
                 </Button>
               </div>
             </div>
@@ -126,10 +98,10 @@ export default function HomePageClient({ aktuelleSpiele, scorers, gruppen, cmsAr
             <Card className="pitch-frame p-5 md:p-6">
               <div className="flex items-center justify-between gap-3 pb-4">
                 <div>
-                  <p className="text-xs font-semibold uppercase text-[var(--accent)]">{isEnglish ? 'Live desk' : 'Pulpit live'}</p>
+                  <p className="text-xs font-semibold uppercase" style={{ color: '#DC143C' }}>{isEnglish ? 'Live desk' : 'Pulpit live'}</p>
                   <h2 className="text-2xl text-[var(--text-main)]">{isEnglish ? 'Current fixtures' : 'Aktualne mecze'}</h2>
                 </div>
-                <Link href="/spiele" className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--accent)]">
+                <Link href="/spiele" className="inline-flex items-center gap-2 text-sm font-semibold" style={{ color: '#DC143C' }}>
                   {isEnglish ? 'All matches' : 'Wszystkie mecze'} <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
@@ -147,59 +119,59 @@ export default function HomePageClient({ aktuelleSpiele, scorers, gruppen, cmsAr
             </Card>
           </div>
 
-          <Card className="mt-8 p-5 md:p-6">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold uppercase text-[var(--accent)]">
-                  {isEnglish ? 'Next World Cup match' : 'Najblizszy mecz MS'}
-                </p>
-                <h2 className="text-2xl text-[var(--text-main)]">{nextWorldCupMatch.round}</h2>
-              </div>
-              <Link href={nextWorldCupMatch.id ? `/spiele/${nextWorldCupMatch.id}` : '/wm-2026/spielplan'} className="text-sm font-semibold text-[var(--accent)]">
-                {isEnglish ? 'Open match' : 'Otworz mecz'}
-              </Link>
-            </div>
-            <div className="grid gap-4 md:grid-cols-[1fr_auto_1fr] md:items-center">
-              <div className="flex items-center gap-3 md:justify-end">
-                {nextWorldCupMatch.homeTeam.logo ? (
-                  <img src={nextWorldCupMatch.homeTeam.logo} alt={nextWorldCupMatch.homeTeam.name} className="h-12 w-12 object-contain" />
-                ) : (
-                  <span className="flex h-12 w-12 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface-soft)] text-xs font-semibold text-[var(--text-main)]">
-                    {nextWorldCupMatch.homeTeam.shortName}
-                  </span>
-                )}
-                <div className="text-left md:text-right">
-                  <p className="text-sm text-[var(--text-main)]">{nextWorldCupMatch.homeTeam.name}</p>
-                  <p className="text-xs text-[var(--text-muted)]">{nextWorldCupMatch.homeTeam.shortName}</p>
-                </div>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl text-[var(--accent)]">VS</p>
-                <p className="text-xs text-[var(--text-muted)]">{nextWorldCupMatch.tournament}</p>
-              </div>
-              <div className="flex items-center gap-3">
-                {nextWorldCupMatch.awayTeam.logo ? (
-                  <img src={nextWorldCupMatch.awayTeam.logo} alt={nextWorldCupMatch.awayTeam.name} className="h-12 w-12 object-contain" />
-                ) : (
-                  <span className="flex h-12 w-12 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface-soft)] text-xs font-semibold text-[var(--text-main)]">
-                    {nextWorldCupMatch.awayTeam.shortName}
-                  </span>
-                )}
+          {nextMatch && (
+            <Card className="mt-8 p-5 md:p-6">
+              <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-sm text-[var(--text-main)]">{nextWorldCupMatch.awayTeam.name}</p>
-                  <p className="text-xs text-[var(--text-muted)]">{nextWorldCupMatch.awayTeam.shortName}</p>
+                  <p className="text-xs font-semibold uppercase" style={{ color: '#DC143C' }}>
+                    {isEnglish ? 'Next Ekstraklasa match' : 'Najbliższy mecz Ekstraklasy'}
+                  </p>
+                  <h2 className="text-2xl text-[var(--text-main)]">{nextMatch.runde ?? 'Ekstraklasa'}</h2>
+                </div>
+                <Link href={`/spiele/${nextMatch.id}`} className="text-sm font-semibold" style={{ color: '#DC143C' }}>
+                  {isEnglish ? 'Open match' : 'Otwórz mecz'}
+                </Link>
+              </div>
+              <div className="grid gap-4 md:grid-cols-[1fr_auto_1fr] md:items-center">
+                <div className="flex items-center gap-3 md:justify-end">
+                  {nextMatch.team1.wappen ? (
+                    <img src={nextMatch.team1.wappen} alt={nextMatch.team1.name} className="h-12 w-12 object-contain" />
+                  ) : (
+                    <span className="flex h-12 w-12 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface-soft)] text-xs font-semibold text-[var(--text-main)]">
+                      {nextMatch.team1.kurzname}
+                    </span>
+                  )}
+                  <div className="text-left md:text-right">
+                    <p className="text-sm text-[var(--text-main)]">{nextMatch.team1.name}</p>
+                    <p className="text-xs text-[var(--text-muted)]">{nextMatch.team1.kurzname}</p>
+                  </div>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold" style={{ color: '#DC143C' }}>VS</p>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    {nextMatch.datum} {nextMatch.uhrzeit}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  {nextMatch.team2.wappen ? (
+                    <img src={nextMatch.team2.wappen} alt={nextMatch.team2.name} className="h-12 w-12 object-contain" />
+                  ) : (
+                    <span className="flex h-12 w-12 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface-soft)] text-xs font-semibold text-[var(--text-main)]">
+                      {nextMatch.team2.kurzname}
+                    </span>
+                  )}
+                  <div>
+                    <p className="text-sm text-[var(--text-main)]">{nextMatch.team2.name}</p>
+                    <p className="text-xs text-[var(--text-muted)]">{nextMatch.team2.kurzname}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="mt-4 grid gap-2 text-sm text-[var(--text-muted)] md:grid-cols-3">
-              <p>{nextWorldCupMatch.kickoffLabel}</p>
-              <p>{nextWorldCupMatch.venue}</p>
-              <p>{nextWorldCupMatch.location}</p>
-            </div>
-            <div className="mt-5 flex justify-center">
-              <CountdownTimer targetDate={nextWorldCupMatch.date} />
-            </div>
-          </Card>
+              <div className="mt-4 grid gap-2 text-sm text-[var(--text-muted)] md:grid-cols-2">
+                <p>{nextMatch.stadion}</p>
+                <p>{nextMatch.stadt}</p>
+              </div>
+            </Card>
+          )}
         </div>
       </section>
 

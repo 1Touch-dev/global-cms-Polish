@@ -696,8 +696,8 @@ export function rewriteBialoCzerwoniBannerHtml(html: string, locale = 'pl'): str
   return html
     .replace(/<style[\s\S]*?<\/style>/gi, '')
     .replace(
-      /href=(["'])(?:https?:\/\/(?:www\.)?bialoczerwoni\.live)?(?:\/[a-z-]{2,5})?\/news\/([^"'#?]+)\1/gi,
-      `href="/${lang}/news/$2"`,
+      /href=(["'])(?:https?:\/\/(?:www\.)?bialoczerwoni\.live)?(?:\/[a-z-]{2,5})?\/(?:news|wiadomosc)\/([^"'#?]+)\1/gi,
+      `href="/${lang}/wiadomosc/$2"`,
     )
     .replace(
       /(<img[^>]+src=)(["'])(?!https?:\/\/|data:|\/\/)(\/[^"'\s>]*)\2/gi,

@@ -5,20 +5,20 @@ import type { BialoCzerwoniBanner } from '@/lib/bialoCzerwoniApi'
 
 const BC_BANNER_CSS = `
 .bc-banner-html .card-banner,.bc-banner-html .link,.bc-banner-html .card{display:flex!important;flex-direction:column!important;height:100%!important;width:100%!important;text-decoration:none!important;color:inherit!important}
-.bc-banner-html .card{background:#ffffff!important;border:1px solid rgba(22,163,74,0.2)!important;border-radius:14px!important;overflow:hidden!important;box-shadow:0 2px 8px rgba(7,17,31,0.06)!important;transition:border-color .18s,box-shadow .18s,transform .18s!important}
+.bc-banner-html .card{background:var(--surface)!important;border:1px solid rgba(22,163,74,0.2)!important;border-radius:14px!important;overflow:hidden!important;box-shadow:0 2px 8px rgba(7,17,31,0.06)!important;transition:border-color .18s,box-shadow .18s,transform .18s!important}
 .bc-banner-html .card:hover{border-color:#16a34a!important;box-shadow:0 4px 20px rgba(22,163,74,0.12)!important;transform:translateY(-2px)!important}
-.bc-banner-html .img-area{width:100%!important;height:210px!important;overflow:hidden!important;position:relative!important;flex-shrink:0!important;background:#f0fdf4!important}
+.bc-banner-html .img-area{width:100%!important;height:210px!important;overflow:hidden!important;position:relative!important;flex-shrink:0!important;background:var(--surface-soft)!important}
 .bc-banner-html .img-area img,.bc-banner-html .img-area .img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important;transition:transform .55s cubic-bezier(.25,.46,.45,.94)!important}
 .bc-banner-html .card:hover .img-area img,.bc-banner-html .card:hover .img-area .img{transform:scale(1.06)!important}
 .bc-banner-html .body{padding:14px 14px 12px!important;flex:1!important;display:flex!important;flex-direction:column!important}
 .bc-banner-html .tags{display:flex!important;flex-wrap:wrap!important;gap:6px!important;margin-bottom:0!important}
 .bc-banner-html .tag{display:inline-block!important;background:#16a34a!important;color:#fff!important;font-size:11px!important;font-weight:700!important;padding:3px 10px!important;border-radius:50px!important;white-space:nowrap!important;line-height:1.4!important}
 .bc-banner-html .divider{height:1px!important;background:rgba(0,0,0,0.08)!important;margin:10px 0!important}
-.bc-banner-html .title{color:#07111f!important;font-weight:700!important;font-size:14px!important;line-height:1.4!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:3!important;overflow:hidden!important;flex:1!important}
-.bc-banner-html *{color:#07111f!important}
+.bc-banner-html .title{color:var(--text-main)!important;font-weight:700!important;font-size:14px!important;line-height:1.4!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:3!important;overflow:hidden!important;flex:1!important}
+.bc-banner-html *{color:var(--text-main)!important}
 .bc-banner-html .tag{color:#fff!important}
 .bc-banner-html .footer{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;margin-top:10px!important}
-.bc-banner-html .domain{font-size:12px!important;color:#5b6878!important}
+.bc-banner-html .domain{font-size:12px!important;color:var(--text-muted)!important}
 .bc-banner-html .logo-text{font-size:12px!important;font-weight:800!important;color:#0b6623!important}
 .bc-banner-html .logo-block-text,.bc-banner-html .logo-block-image{background:rgba(22,163,74,0.05)!important;border:1px solid rgba(22,163,74,0.15)!important;border-radius:10px!important;padding:4px 8px!important}
 `
@@ -75,7 +75,7 @@ export default function BannerCarousel({ banners, locale = 'pl' }: BannerCarouse
       <div
         className="mb-8 rounded-2xl px-4 py-5"
         style={{
-          background: '#f4faf3',
+          background: 'var(--bg)',
           border: '1px solid rgba(22,163,74,0.18)',
           boxShadow: '0 2px 12px rgba(7,17,31,0.06)',
         }}
