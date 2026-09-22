@@ -35,6 +35,7 @@ const STATIC_ROUTES: { path: string; priority: number; changefreq: MetadataRoute
   { path: '/reprezentacja',            priority: 0.7,  changefreq: 'weekly'  },
   { path: '/transfery',                priority: 0.65, changefreq: 'weekly'  },
   { path: '/news',                     priority: 0.8,  changefreq: 'hourly'  },
+  { path: '/siatkowka',                priority: 0.8,  changefreq: 'daily'   },
   { path: '/vorhersage',               priority: 0.55, changefreq: 'weekly'  },
   { path: '/suche',                    priority: 0.4,  changefreq: 'monthly' },
   { path: '/inne',                     priority: 0.4,  changefreq: 'monthly' },
@@ -80,13 +81,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Dynamic article pages
   const articleEntries: MetadataRoute.Sitemap = slugs.flatMap((slug) =>
     LOCALES.map((locale) => ({
-      url: `${SITE_URL}/${locale}/wiadomosc/${slug}`,
+      url: `${SITE_URL}/${locale}/news/${slug}`,
       lastModified: now,
       changeFrequency: 'weekly' as const,
       priority: 0.65,
       alternates: {
         languages: Object.fromEntries(
-          LOCALES.map((l) => [l, `${SITE_URL}/${l}/wiadomosc/${slug}`])
+          LOCALES.map((l) => [l, `${SITE_URL}/${l}/news/${slug}`])
         ),
       },
     }))

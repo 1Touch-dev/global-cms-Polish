@@ -52,7 +52,7 @@ export async function GET(
     .map((article) => {
       const resolved = resolveBcArticle(article, locale)
       const thumb = bcThumbnail(article)
-      const articleUrl = `${SITE_URL}/${locale}/wiadomosc/${article.slug}`
+      const articleUrl = `${SITE_URL}/${locale}/news/${article.slug}`
       const pubDate = toRfc822(resolved.publishedAt)
 
       const enclosure = thumb

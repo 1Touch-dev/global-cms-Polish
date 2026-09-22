@@ -249,7 +249,7 @@ function NewsPanel({ news, locale }: { news: BialoCzerwoniArticle[]; locale: str
         const thumb = bcThumbnail(article)
 
         return (
-          <Link key={article._id} href={`/wiadomosc/${article.slug}`} className="group block">
+          <Link key={article._id} href={`/news/${article.slug}`} className="group block">
             <Card className="card-hover h-full overflow-hidden p-0">
               {thumb && <img src={thumb} alt={resolved.title} className="h-44 w-full object-cover" />}
               <div className="space-y-3 p-5">

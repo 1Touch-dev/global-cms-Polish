@@ -13,6 +13,8 @@ import { Button } from '@/components/ui/Button'
 import { BcFeaturedCard } from '@/components/cms/BcFeaturedCard'
 import { BcArticleCard } from '@/components/cms/BcArticleCard'
 import type { BialoCzerwoniArticle } from '@/lib/bialoCzerwoniApi'
+import { VolleyballStrip, type VolleyballStripEvent, type VolleyballStripLeague } from '@/components/sports/VolleyballStrip'
+import { VolleyballNewsSection } from '@/components/sports/VolleyballNewsSection'
 import AffiliateBannerFrame from '@/components/affiliates/AffiliateBannerFrame'
 import AffiliateOfferCard from '@/components/affiliates/AffiliateOfferCard'
 
@@ -41,9 +43,12 @@ interface HomePageProps {
     }[]
   }[]
   cmsArticles: BialoCzerwoniArticle[]
+  volleyballNews?: BialoCzerwoniArticle[]
+  volleyballLeagues?: VolleyballStripLeague[]
+  volleyballEvents?: VolleyballStripEvent[]
 }
 
-export default function HomePageClient({ aktuelleSpiele, scorers, gruppen, cmsArticles }: HomePageProps) {
+export default function HomePageClient({ aktuelleSpiele, scorers, gruppen, cmsArticles, volleyballNews = [], volleyballLeagues = [], volleyballEvents = [] }: HomePageProps) {
   const tHome = useTranslations('home')
   const locale = useLocale()
   const isEnglish = locale === 'en'
@@ -239,13 +244,18 @@ export default function HomePageClient({ aktuelleSpiele, scorers, gruppen, cmsAr
         </section>
       </FadeInSection>
 
+      <FadeInSection delay={0.04}>
+        <VolleyballStrip locale={locale} events={volleyballEvents} leagues={volleyballLeagues} />
+        <VolleyballNewsSection locale={locale} articles={volleyballNews} />
+      </FadeInSection>
+
       <FadeInSection delay={0.05}>
         <section className="mx-auto max-w-7xl px-4 py-10">
           <SectionHeader
             title={tHome('aktuelle_news')}
             eyebrow="Newsroom"
             actions={
-              <Link href="/ms-2026" className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--accent)]">
+              <Link href="/news" className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--accent)]">
                 {tHome('alle_nachrichten')} <ArrowRight className="h-4 w-4" />
               </Link>
             }

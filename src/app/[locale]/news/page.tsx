@@ -19,7 +19,6 @@ export async function generateMetadata({
 
 const NEWS_FILTERS: { label: string; value: '' | BcEndpointName }[] = [
   { label: 'Wszystkie', value: '' },
-  { label: 'MŚ 2026', value: BC_ENDPOINTS.Wc2026 },
   { label: 'Reprezentacja', value: BC_ENDPOINTS.PolandNationalTeam },
   { label: 'Transfery', value: BC_ENDPOINTS.Transfers },
   { label: 'Zawodnicy', value: BC_ENDPOINTS.Players },

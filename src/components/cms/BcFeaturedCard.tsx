@@ -22,7 +22,7 @@ export function BcFeaturedCard({
   const resolved = resolveBcArticle(article, locale)
 
   return (
-    <Link href={`/wiadomosc/${article.slug}`} className="group block">
+    <Link href={`/news/${article.slug}`} className="group block">
       <Card className="card-hover overflow-hidden p-0">
         <div className="grid md:grid-cols-[1.2fr_1fr]">
           {thumb && (

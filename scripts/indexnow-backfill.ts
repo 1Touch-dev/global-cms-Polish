@@ -130,7 +130,7 @@ async function main() {
   const articleUrls: string[] = []
   for (const locale of locales) {
     for (const slug of slugs) {
-      articleUrls.push(`${SITE_URL}/${locale}/wiadomosc/${slug}`)
+      articleUrls.push(`${SITE_URL}/${locale}/news/${slug}`)
     }
   }
 

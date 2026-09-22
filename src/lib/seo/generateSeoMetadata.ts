@@ -28,6 +28,7 @@ interface GenerateSeoMetadataParams {
   type?: 'website' | 'article'
   publishedTime?: string
   modifiedTime?: string
+  canonicalUrl?: string
 }
 
 /**
@@ -44,8 +45,9 @@ export function generateSeoMetadata({
   type = 'website',
   publishedTime,
   modifiedTime,
+  canonicalUrl,
 }: GenerateSeoMetadataParams): Metadata {
-  const canonical = `${SITE_URL}/${locale}${path === '/' ? '' : path}`
+  const canonical = canonicalUrl || `${SITE_URL}/${locale}${path === '/' ? '' : path}`
 
   // hreflang alternates — one per supported locale + x-default (pointing to default locale)
   const languages: Record<string, string> = {}

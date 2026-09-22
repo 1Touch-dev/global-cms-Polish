@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link, usePathname } from '@/i18n/routing'
-import { Menu, X, Search, Trophy, ChevronDown, Newspaper, LayoutGrid, Flag } from 'lucide-react'
+import { Menu, X, Search, Trophy, Newspaper, LayoutGrid, Flag } from 'lucide-react'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
@@ -11,12 +11,10 @@ export function Navbar() {
   const t = useTranslations('nav')
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [openMenu, setOpenMenu] = useState<'wm' | 'ligen' | 'ms2026' | null>(null)
 
   const isActive = (path: string) => pathname === path || pathname.startsWith(`${path}/`)
 
   const primaryLinks = [
-    { href: '/ms-2026', label: t('ms2026Short'), hasDropdown: true, key: 'ms2026' as const },
     { href: '/reprezentacja', label: t('nationalTeam'), icon: Flag },
     { href: '/transfery', label: t('transfers') },
     { href: '/zawodnicy', label: t('spieler') },
@@ -24,20 +22,7 @@ export function Navbar() {
     { href: '/stadiony', label: t('stadien') },
     { href: '/inne', label: t('other') },
     { href: '/news', label: t('news'), icon: Newspaper },
-  ]
-
-  const ms2026SubLinks = [
-    { href: '/ms-2026', label: t('ms2026News') },
-    { href: '/ms-2026/grupy', label: t('gruppen') },
-    { href: '/ms-2026/terminarz', label: t('spielplan') },
-    { href: '/ms-2026/faza-pucharowa', label: t('bracket') },
-  ]
-
-  const wmSubLinks = [
-    { href: '/wm-2026/gruppen', label: t('gruppen') },
-    { href: '/wm-2026/spielplan', label: t('spielplan') },
-    { href: '/wm-2026/ergebnisse', label: t('ergebnisse') },
-    { href: '/wm-2026/bracket', label: t('bracket') },
+    { href: '/siatkowka', label: t('volleyball') },
   ]
 
   return (
@@ -59,44 +44,16 @@ export function Navbar() {
             const Icon = 'icon' in link ? link.icon : null
             const active = isActive(link.href)
             return (
-              <div
+              <Link
                 key={link.href}
-                className="relative"
-                onMouseEnter={() => {
-                  if ('key' in link && link.key) setOpenMenu(link.key)
-                }}
-                onMouseLeave={() => {
-                  if ('key' in link) setOpenMenu(null)
-                }}
+                href={link.href}
+                className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-neon)] ${
+                  active ? 'bg-[var(--surface-soft)] text-[var(--accent)]' : 'text-[var(--text-muted)] hover:bg-[var(--surface)] hover:text-[var(--text-main)]'
+                }`}
               >
-                <Link
-                  href={link.href}
-                  className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-neon)] ${
-                    active ? 'bg-[var(--surface-soft)] text-[var(--accent)]' : 'text-[var(--text-muted)] hover:bg-[var(--surface)] hover:text-[var(--text-main)]'
-                  }`}
-                >
-                  {Icon && <Icon className="h-4 w-4" />}
-                  {link.label}
-                  {'hasDropdown' in link && link.hasDropdown && <ChevronDown className={`h-4 w-4 transition ${openMenu === link.key ? 'rotate-180' : ''}`} />}
-                </Link>
-
-                {'key' in link && openMenu === link.key && (
-                  <div className="absolute left-0 top-full mt-2 w-56 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] shadow-[var(--shadow-strong)]">
-                    <div className="p-2">
-                      {(link.key === 'ms2026' ? ms2026SubLinks : wmSubLinks).map((sub) => (
-                        <Link
-                          key={sub.href}
-                          href={sub.href}
-                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--surface-soft)] hover:text-[var(--text-main)]"
-                        >
-                          <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
-                          {sub.label}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+                {Icon && <Icon className="h-4 w-4" />}
+                {link.label}
+              </Link>
             )
           })}
         </div>
@@ -126,37 +83,21 @@ export function Navbar() {
         <div className="border-t border-[var(--border)] bg-[var(--bg)]/96 px-4 py-4 backdrop-blur-2xl lg:hidden">
           <div className="space-y-2">
             {primaryLinks.map((link) => (
-              <div key={link.href} className="space-y-2">
-                <Link
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={`flex items-center justify-between rounded-2xl border px-4 py-3 text-sm font-medium transition ${
-                    isActive(link.href)
-                      ? 'border-[var(--accent)]/30 bg-[var(--surface-soft)] text-[var(--accent)]'
-                      : 'border-[var(--border)] bg-[var(--surface)] text-[var(--text-main)]'
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    {'icon' in link && link.icon ? <link.icon className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4 opacity-0" />}
-                    {link.label}
-                  </span>
-                  {'hasDropdown' in link && link.hasDropdown && <ChevronDown className="h-4 w-4" />}
-                </Link>
-                {'key' in link && (
-                  <div className="ml-3 space-y-1 border-l border-[var(--border)] pl-3">
-                    {(link.key === 'ms2026' ? ms2026SubLinks : wmSubLinks).map((sub) => (
-                      <Link
-                        key={sub.href}
-                        href={sub.href}
-                        onClick={() => setMobileOpen(false)}
-                        className="block rounded-xl px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--surface-soft)] hover:text-[var(--text-main)]"
-                      >
-                        {sub.label}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMobileOpen(false)}
+                className={`flex items-center justify-between rounded-2xl border px-4 py-3 text-sm font-medium transition ${
+                  isActive(link.href)
+                    ? 'border-[var(--accent)]/30 bg-[var(--surface-soft)] text-[var(--accent)]'
+                    : 'border-[var(--border)] bg-[var(--surface)] text-[var(--text-main)]'
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  {'icon' in link && link.icon ? <link.icon className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4 opacity-0" />}
+                  {link.label}
+                </span>
+              </Link>
             ))}
           </div>
         </div>

@@ -126,7 +126,7 @@ export function NewsSection({
         </div>
         <div className="divide-y divide-[var(--border)]">
           {articles.length > 0 ? articles.map((article) => (
-            <Link key={article.id} href={`/wiadomosc/${article.slug}`} className="block px-4 py-3 transition hover:bg-[var(--surface-soft)]">
+            <Link key={article.id} href={`/news/${article.slug}`} className="block px-4 py-3 transition hover:bg-[var(--surface-soft)]">
               <div className="space-y-1">
                 <p className="line-clamp-1 text-sm text-[var(--text-main)]">{article.titel}</p>
                 <div className="flex items-center gap-2 text-[10px] text-[var(--text-muted)]">
@@ -161,7 +161,7 @@ export function NewsSection({
         {articles.length > 0 ? articles.map((article, index) => (
           <Link
             key={article.id}
-            href={`/wiadomosc/${article.slug}`}
+            href={`/news/${article.slug}`}
             className={index === 0 ? 'md:col-span-2' : ''}
           >
             <Card className="h-full overflow-hidden p-0 transition hover:border-[var(--accent)]">

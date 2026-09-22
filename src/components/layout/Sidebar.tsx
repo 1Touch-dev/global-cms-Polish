@@ -8,7 +8,7 @@ export function Sidebar() {
   const t = useTranslations('nav')
 
   const sideLinks = [
-    { href: '/wm-2026', label: t('wm2026'), icon: Trophy },
+    { href: '/ligen/ekstraklasa', label: 'Ekstraklasa', icon: Trophy },
     { href: '/teams', label: t('teams'), icon: Users },
     { href: '/spieler', label: t('spieler'), icon: User },
     { href: '/statistiken', label: t('statistiken'), icon: BarChart3 },

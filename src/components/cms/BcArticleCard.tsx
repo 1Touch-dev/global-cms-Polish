@@ -22,7 +22,7 @@ export function BcArticleCard({
   const resolved = resolveBcArticle(article, locale)
 
   return (
-    <Link href={`/wiadomosc/${article.slug}`} className="group block h-full">
+    <Link href={`/news/${article.slug}`} className="group block h-full">
       <Card className="card-hover flex h-full flex-col gap-0 overflow-hidden p-0">
         {thumb && (
           <div className="relative aspect-video w-full overflow-hidden">

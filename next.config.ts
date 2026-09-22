@@ -16,6 +16,8 @@ const nextConfig: NextConfig = {
       // CMS (global_cms) image hosts
       { protocol: 'https', hostname: 'api.golazopro.com' },
       { protocol: 'https', hostname: '*.golazopro.com' },
+      { protocol: 'https', hostname: 'api.bialoczerwoni.live' },
+      { protocol: 'https', hostname: '*.bialoczerwoni.live' },
       // AWS S3 / CloudFront — CMS uploads
       { protocol: 'https', hostname: '*.s3.amazonaws.com' },
       { protocol: 'https', hostname: '*.s3.*.amazonaws.com' },

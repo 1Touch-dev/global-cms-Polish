@@ -2,10 +2,10 @@
 // bialoCzerwoni.live  ×  Headless CMS API client
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { translateText } from '@/lib/translate'
+
 const CMS_BASE =
   process.env.NEXT_PUBLIC_CMS_API_URL || 'https://api.golazopro.com/api'
-const TRANSLATE_REVALIDATE_SECONDS = 60 * 60 * 24 * 7
-const TRANSLATE_CHUNK_SIZE = 3500
 
 export const BIALO_CZERWONI_WEBSITE = 'bialoczerwoni.live'
 
@@ -22,6 +22,7 @@ export const BC_ENDPOINTS = {
   Stadiums: 'Stadiums',
   Scorers: 'Scorers',
   Other: 'Other',
+  Volleyball: 'Volleyball',
 } as const
 
 export type BcEndpointKey = keyof typeof BC_ENDPOINTS
@@ -41,6 +42,7 @@ export const BialoCzerwoniRouteEndpoint: Record<string, BcEndpointName> = {
   '/stadiony': BC_ENDPOINTS.Stadiums,
   '/strzelcy': BC_ENDPOINTS.Scorers,
   '/inne': BC_ENDPOINTS.Other,
+  '/siatkowka': BC_ENDPOINTS.Volleyball,
 }
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -135,6 +137,8 @@ export interface BialoCzerwoniArticle {
   faq?: BcFaqItem[]
   // Internal links for cross-linking
   internalLinks?: { text: string; url: string }[]
+  canonicalUrl?: string
+  previousSlugs?: string[]
 }
 
 export interface BcResolvedArticle {
@@ -329,6 +333,51 @@ export async function fetchBialoCzerwoniHomePage(
   return fetchBialoCzerwoniSiteArticles(1, limit, { locale })
 }
 
+const VOLLEYBALL_SEARCH_NEEDLES = ['volleyball', 'siatkowka', 'siatkówka', 'plusliga', 'plus liga']
+
+function articleLooksLikeVolleyball(article: BialoCzerwoniArticle): boolean {
+  const hay = [
+    article.title,
+    article.summary,
+    article.description,
+    ...(article.tags ?? []),
+    ...(article.category ?? []),
+    ...(article.endpointAssignments?.map((e) => e.name) ?? []),
+  ]
+    .join(' ')
+    .toLowerCase()
+  return VOLLEYBALL_SEARCH_NEEDLES.some((n) => hay.includes(n.toLowerCase()))
+}
+
+function emptyBcList(page: number, limit: number): BcListResponse {
+  return { data: [], meta: { total: 0, currentPage: page, totalPages: 0, limit } }
+}
+
+export async function fetchBialoCzerwoniVolleyball(
+  page = 1,
+  limit = 20,
+  locale?: string,
+): Promise<BcListResponse> {
+  const primary = await fetchBialoCzerwoniArticlesByEndpoint(BC_ENDPOINTS.Volleyball, {
+    page,
+    limit,
+    locale,
+  })
+  if (primary?.data?.length || page > 1) return primary ?? emptyBcList(page, limit)
+
+  for (const term of ['siatkówka', 'PlusLiga', 'volleyball']) {
+    const searched = await fetchBialoCzerwoniSiteArticles(1, limit, { search: term, locale })
+    const data = (searched?.data ?? []).filter(articleLooksLikeVolleyball)
+    if (data.length > 0) {
+      return {
+        data,
+        meta: { total: data.length, currentPage: 1, totalPages: 1, limit },
+      }
+    }
+  }
+  return primary ?? emptyBcList(page, limit)
+}
+
 /** WC 2026 section — paginated. */
 export async function fetchBialoCzerwoniWc2026(
   page = 1,
@@ -399,54 +448,9 @@ function findTranslation(
   })
 }
 
-function getTranslatedText(payload: unknown): string {
-  if (!Array.isArray(payload) || !Array.isArray(payload[0])) return ''
-  return payload[0]
-    .map((segment) => (Array.isArray(segment) && typeof segment[0] === 'string' ? segment[0] : ''))
-    .join('')
-}
-
-function splitTranslationChunks(text: string): string[] {
-  const chunks: string[] = []
-  let remaining = text
-
-  while (remaining.length > TRANSLATE_CHUNK_SIZE) {
-    const splitAt = Math.max(
-      remaining.lastIndexOf(' ', TRANSLATE_CHUNK_SIZE),
-      remaining.lastIndexOf('\n', TRANSLATE_CHUNK_SIZE),
-    )
-    const end = splitAt > 0 ? splitAt + 1 : TRANSLATE_CHUNK_SIZE
-    chunks.push(remaining.slice(0, end))
-    remaining = remaining.slice(end)
-  }
-
-  if (remaining) chunks.push(remaining)
-  return chunks
-}
-
 async function translateTextToEnglish(text?: string) {
   if (!text?.trim()) return text
-
-  const translated = await Promise.all(
-    splitTranslationChunks(text).map(async (chunk) => {
-      const url = new URL('https://translate.googleapis.com/translate_a/single')
-      url.searchParams.set('client', 'gtx')
-      url.searchParams.set('sl', 'auto')
-      url.searchParams.set('tl', 'en')
-      url.searchParams.set('dt', 't')
-      url.searchParams.set('q', chunk)
-
-      const res = await fetch(url, {
-        headers: { Accept: 'application/json' },
-        next: { revalidate: TRANSLATE_REVALIDATE_SECONDS },
-      }).catch(() => null)
-
-      if (!res?.ok) return chunk
-      return getTranslatedText(await res.json()) || chunk
-    }),
-  )
-
-  return translated.join('').trim() || text
+  return translateText(text, 'en')
 }
 
 async function translateBcArticleFallback(article: BialoCzerwoniArticle, locale?: string, translateContent?: boolean): Promise<BialoCzerwoniArticle>
@@ -697,7 +701,7 @@ export function rewriteBialoCzerwoniBannerHtml(html: string, locale = 'pl'): str
     .replace(/<style[\s\S]*?<\/style>/gi, '')
     .replace(
       /href=(["'])(?:https?:\/\/(?:www\.)?bialoczerwoni\.live)?(?:\/[a-z-]{2,5})?\/(?:news|wiadomosc)\/([^"'#?]+)\1/gi,
-      `href="/${lang}/wiadomosc/$2"`,
+      `href="/${lang}/news/$2"`,
     )
     .replace(
       /(<img[^>]+src=)(["'])(?!https?:\/\/|data:|\/\/)(\/[^"'\s>]*)\2/gi,

@@ -28,7 +28,8 @@
     "search": "Search",
     "menu": "Menu",
     "spiele": "Matches",
-    "news": "News"
+    "news": "News",
+    "volleyball": "Volleyball"
   },
   "wm": {
     "titel": "FIFA World Cup 2026",
@@ -263,14 +264,14 @@
     "allgemein": "An error occurred"
   },
   "footer": {
-    "beschreibung": "Your portal to the FIFA World Cup 2026",
+    "beschreibung": "Matchday Arena — Polish football and the Ekstraklasa. Scores, table and fixtures.",
     "links": "Quick Links",
     "safe": "Secure",
     "contact": "Contact",
     "kontakt": "Contact",
     "datenschutz": "Privacy",
     "impressum": "Legal",
-    "copyright": "© 2026 World Cup. All rights reserved."
+    "copyright": "© 2026 Matchday Arena. All rights reserved."
   },
   "home": {
     "aktuelle_spiele": "LIVE MATCHES",
@@ -286,11 +287,11 @@
     "alle_nachrichten": "All News",
     "wm_hub": "WM 2026 Hub",
     "spielplan_link": "Schedule",
-    "ticker_live": "⚽ World Cup 2026 — Live Results...",
+    "ticker_live": "⚽ Ekstraklasa — live scores...",
     "ticker_torjaeger": "Top scorers list updated dynamically",
     "ticker_statistiken": "All statistics in real time",
-    "torschuetzen_beschreibung": "The best scorers of the World Cup 2026",
-    "stadien_beschreibung": "All 16 World Cup stadiums on a map",
+    "torschuetzen_beschreibung": "Top scorers in the Ekstraklasa",
+    "stadien_beschreibung": "Ekstraklasa and Polish football stadiums",
     "vorhersage_beschreibung": "Predict the results!",
     "hero_tore": "Goals",
     "hero_mannschaften": "Teams",

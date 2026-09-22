@@ -20,7 +20,7 @@ export function Footer() {
               </div>
               <div>
                 <p className="text-xl text-[var(--text-main)]">Matchday Arena</p>
-                <p className="text-sm text-[var(--text-muted)]">Polska redakcja turniejowa</p>
+                <p className="text-sm text-[var(--text-muted)]">Ekstraklasa · polska piłka</p>
               </div>
             </div>
             <p className="max-w-xl text-sm leading-6 text-[var(--text-muted)]">
@@ -46,11 +46,12 @@ export function Footer() {
           <div>
             <h4 className="mb-4 text-base text-[var(--text-main)]">{t('links')}</h4>
             <ul className="space-y-2 text-sm text-[var(--text-muted)]">
-              <li><Link href="/wm-2026" className="transition hover:text-[var(--accent)]">{nav('wm2026')}</Link></li>
+              <li><Link href="/ligen/ekstraklasa" className="transition hover:text-[var(--accent)]">Ekstraklasa</Link></li>
               <li><Link href="/teams" className="transition hover:text-[var(--accent)]">{nav('teams')}</Link></li>
               <li><Link href="/torschuetzen" className="transition hover:text-[var(--accent)]">{nav('torschuetzen')}</Link></li>
               <li><Link href="/stadien" className="transition hover:text-[var(--accent)]">{nav('stadien')}</Link></li>
-              <li><Link href="/vorhersage" className="transition hover:text-[var(--accent)]">{nav('vorhersage')}</Link></li>
+              <li><Link href="/news" className="transition hover:text-[var(--accent)]">{nav('news')}</Link></li>
+              <li><Link href="/siatkowka" className="transition hover:text-[var(--accent)]">{nav('volleyball')}</Link></li>
             </ul>
           </div>
 
